@@ -62,7 +62,7 @@ end
 """
    considering the boundary part
 """
-function fxy_convolution(op::Matrix{Complex{Tv}}, adj; data::Matrix{Complex{Tv}}=1, L=1) where {Tv<:Float64}
+function fxy_test(op::Matrix{Complex{Tv}}, adj; data::Matrix{Complex{Tv}}=1, L=1) where {Tv<:Float64}
 
     # size of input data
     (n1, n2) = size(data)
@@ -78,14 +78,14 @@ function fxy_convolution(op::Matrix{Complex{Tv}}, adj; data::Matrix{Complex{Tv}}
 
        # convolution for the center part
        for i2 = 1 : n2
-           f2_lower = i2 - L; f2_lower < 1  ? f2_lower = 1
-           f2_upper = i2 + L; f2_upper > n2 ? f2_upper = n2
+           f2_lower = i2 - L; f2_lower < 1  ? f2_lower : 1
+           f2_upper = i2 + L; f2_upper > n2 ? f2_upper : n2
            j2_lower = f2_lower - i2
            j2_upper = f2_upper - i2
 
            for i1 = 1 : n1
-               f1_lower = i1 - L; f1_lower < 1  ? f1_lower = 1
-               f1_upper = i1 + L; f1_upper > n1 ? f1_upper = n1
+               f1_lower = i1 - L; f1_lower < 1  ? f1_lower : 1
+               f1_upper = i1 + L; f1_upper > n1 ? f1_upper : n1
                j1_lower = f1_lower - i1
                j1_upper = f1_upper - i1
 
@@ -105,14 +105,14 @@ function fxy_convolution(op::Matrix{Complex{Tv}}, adj; data::Matrix{Complex{Tv}}
       dout = zeros(Complex{Float64},2*L+1,2*L+1)
 
       for i2 = 1 : n2
-          f2_lower = i2 - L; f2_lower < 1  ? f2_lower = 1
-          f2_upper = i2 + L; f2_upper > n2 ? f2_upper = n2
+          f2_lower = i2 - L; f2_lower < 1  ? f2_lower : 1
+          f2_upper = i2 + L; f2_upper > n2 ? f2_upper : n2
           j2_lower = f2_lower - i2
           j2_upper = f2_upper - i2
 
           for i1 = 1 : n1
-              f1_lower = i1 - L; f1_lower < 1  ? f1_lower = 1
-              f1_upper = i1 + L; f1_upper > n1 ? f1_upper = n1
+              f1_lower = i1 - L; f1_lower < 1  ? f1_lower : 1
+              f1_upper = i1 + L; f1_upper > n1 ? f1_upper : n1
               j1_lower = f1_lower - i1
               j1_upper = f1_upper - i1
 
@@ -123,7 +123,7 @@ function fxy_convolution(op::Matrix{Complex{Tv}}, adj; data::Matrix{Complex{Tv}}
                   for j1 = j1_lower : j1_upper
                       k1 = j1+L+1
 
-                      dout[k1,k2] += conj(data[i1,i2]) * op[i1,i2]
+                      dout[k1,k2] += conj(data[i1+j1,i2+j2]) * op[i1,i2]
                   end
               end
           end
@@ -308,15 +308,14 @@ SeisPlotTX(dout[:,:,10] - din[:,:,10], style="wiggles", xcur=2)
 
 
 
-# data = rand(Complex{Float64}, 111, 121);
-# L = 5;
-# m = rand(Complex{Float64}, 2*L+1, 2*L+1);
-# operators = [fxy_prediction]
-# parameters= [Dict(:data=>data, :L=>L)]
-# d = linear_operators(m, operators, parameters; adj=false)
-#
-#
-# d1 = rand(Complex{Float64}, 101, 111);
-# m1 = linear_operators(d1, operators, parameters; adj=true)
-# dot(m, m1);
-# dot(d, d1);
+data = rand(Complex{Float64}, 111, 121);
+L = 5;
+m = rand(Complex{Float64}, 2*L+1, 2*L+1);
+operators = [fxy_test]
+parameters= [Dict(:data=>data, :L=>L)]
+d = linear_operators(m, operators, parameters; adj=false)
+
+d1 = rand(Complex{Float64}, 101, 111);
+m1 = linear_operators(d1, operators, parameters; adj=true)
+dot(m, m1);
+dot(d, d1);
