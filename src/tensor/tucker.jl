@@ -1,31 +1,24 @@
 """
    struct for tucker tensor
 """
-struct Tucker{Tv<:Number}
-     N    :: Int64
-     rk   :: Vector{Int64}
-     I    :: Vector{Int64}
-     cory :: Array{Tv}
+struct Tucker{Tv<:Number, Ti<:Int64}
+     N    :: Ti
+     rk   :: Vector{Ti}
+     I    :: Vector{Ti}
+     core :: Array{Tv}
      U    :: Vector{Matrix{Tv}}
 end
 
 """
-   copy a tucker tensor
+   constructor of tucker tensor with provided core tensor and factor matrices
 """
-function copy_tucker(T::Tucker)
-    return Tucker(T.N, copy(T.rk), copy(T.I), copy(T.core), deepcopy(U))
-end
-
-"""
-   create a tucker tensor with provided core tensor and factors in each dimension
-"""
-function init_tucker(core::Array{Tv}, U::Vector{Matrix{Tv}}) where {Tv<:Number}
+function Tucker(core::Array{Tv}, U::Vector{Matrix{Tv}}) where {Tv<:Number}
 
     # check dimensions
-    N = ndims(core)
+    N  = ndims(core)
     rk = collect(size(core))
 
-    N == length(U) || error("core dimension does not match factors")
+    N == length(U) || error("core dimension does not match number of factors")
     I = zeros(Int64,N)
     for i = 1 : N
         rk[i] == size(U[i], 2) || error("core dimension does not match factors")
@@ -34,6 +27,15 @@ function init_tucker(core::Array{Tv}, U::Vector{Matrix{Tv}}) where {Tv<:Number}
 
     return Tucker(N, rk, I, copy(core), deepcopy(U))
 end
+
+
+"""
+   copy a tucker tensor
+"""
+function copy_tucker(T::Tucker)
+    return Tucker(T.N, copy(T.rk), copy(T.I), copy(T.core), deepcopy(U))
+end
+
 
 """
    convert low-rank tensor to dense tensor
