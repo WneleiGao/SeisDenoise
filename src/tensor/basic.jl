@@ -15,6 +15,13 @@ function Tensor(D::Array{Tv}) where {Tv <: Number}
 end
 
 """
+   copy a tucker tensor
+"""
+function copy_tensor(T::Tensor)
+    return Tensor(T.N, copy(T.I), copy(T.D))
+end
+
+"""
    unfolding tensor along n dimension
 """
 function matricization(X::Tensor, n::Int64)
@@ -173,67 +180,45 @@ function recursive_krp(A::Vector{Matrix{Tv}}) where {Tv<:Number}
     end
 end
 
-# """
-#    compute tensor times a series of vectors
-# """
-# function ttv(X::Tensor{Tv,Ti}, v::Vector{Vector{Tv}}, dims::Vector{Ti}) {Tv<:Number, Ti<:Int64}
-#
-#     for i = 1 : length(dims)
-#         1 <= dims[i] <= X.N || throw(DimensionMismatch())
-#         X.I[dims[i]] == length(v[i]) || throw(DimensionMismatch())
-#     end
-#
-#     remdims = setdiff(collect(1 : X.N), dims)
-#     pdims = vcat(remdims, dims)
-#
-#     newI  = X.I[pdims]
-#     des = zeros(Tv, newI...)
-#     if length(dims) > 1
-#        permutedims!(des, X.D, pdims)
-#     end
-#
-#     for i = length(dims) : -1 : 1
-#         des = reshape(des, prod(newI[1:n-1]), newI[n])
-#         des = des * v[i]
-#         n = n - 1
-#     end
-#     return des
-# end
-
 """
-   tensor times one matrix, which M × Xn
+tensor times one matrix
 """
-function ttm(M::Matrix{Tv}, T::Tensor{Tv,Ti}, n::Ti) where {Tv<:Number, Ti<:Int64}
+function ttm(U::Matrix{Tv}, X::Tensor{Tv,Ti}, n::Ti;
+         transpose_flag=false) where {Tv <: Number, Ti<:Int64}
 
     # check dimension
-    (n1, n2) = size(M)
-    n2 == T.I[n] || throw(DimensionMismatch())
+    (n1, n2) = size(U)
+    Xn = matricization(X, n)
 
-    # the dimension of result tensor
-    I = copy(T.I)
-    I[n] = n1
+    # copy the dimensions of tensor
+    I = copy(X.I)
 
-    # matricization
-    Tn = matricization(T, n)
-    D  = M * Tn
+    if transpose_flag
+       D = U' * Xn
+       I[n] = n2
 
-    return unmatricization(D, I, n)
+    else
+       D = U  * Xn
+       I[n] = n1
+    end
+
+    D = unmatricization(D, I, n)
+    return D
 end
 
-# """
-#    tensor times a series of matrices
-# """
-# function ttm(U::Vector{Matrix{Tv}}, X::Tensor, n::Vector{Ti}) where {Tv<:Number, Ti<:Int64}
-#     N = X.N
-#     length(U) == N || error("number of factor matrix does not match")
-#     if n < 0
-#        n = setdiff(collect(1:N), -n)
-#     end
-#     maximum(n) <= N || error("too large dimension")
-#     minimum(n) >= 1 || error("too small dimension")
-#     D = tensor(X)
-#     for i in n
-#         D = ttm(D, U[i], i, tflag=tflag)
-#     end
-#     return D
-# end
+"""
+   tensor times a series of matrices
+"""
+function ttm(U::Vector{Matrix{Tv}}, X::Tensor{Tv,Ti}, n::Vector{Ti}; transpose_flag=false) where {Tv<:Number, Ti<:Int64}
+
+    # check dimensions
+    length(U)  == X.N || error("number of factor matrix does not match")
+    maximum(n) <= X.N || error("too large dimension")
+    minimum(n) >= 1   || error("too small dimension")
+
+    D = copy_tensor(X)
+    for i in n
+        D = ttm(U[i], D, i; transpose_flag=transpose_flag)
+    end
+    return D
+end
