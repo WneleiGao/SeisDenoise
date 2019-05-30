@@ -243,22 +243,28 @@ function unpatch(pin::Vector{String})
     d[itl:itu, x1l:x1u, x2l:x2u] .= d1[:,:,:]
 
     for i = 2 : length(pin)
-        (d1, nt, n1, n2, itl, itu, x1l, x1u, x2l, x2u, it_wo, x1_wo, x2_wo)= read_one_patch(pin[i], return_flag=true);
+        (d1, nt, n1, n2, itl, itu, x1l, x1u, x2l, x2u, it_wo, x1_wo, x2_wo, code)= read_one_patch(pin[i], return_flag=true);
         d[itl:itu, x1l:x1u, x2l:x2u] .= d[itl:itu, x1l:x1u, x2l:x2u] .+ d1[:,:,:]
     end
 
     return d
 end
 
+# # generate a 3D cube
 # path = joinpath(homedir(), "Desktop/randCP");
 # d0   = randn(Float32, 222, 80, 97);
+#
+# # divided into patches
 # it_wl= 123; it_wo=15;
 # x1_wl= 40 ; x1_wo=10;
 # x2_wl= 40 ; x2_wo=10;
 # vec_dir = patch(path, d0, it_wl, it_wo, x1_wl, x1_wo, x2_wl, x2_wo);
 #
+# # taper the boundary of each patch
 # par_taper(vec_dir);
 #
+# # merge patches
 # d1 = unpatch(vec_dir);
 #
+# # test the difference
 # norm(d1-d0) / norm(d0)

@@ -2,38 +2,39 @@
    struct for tucker tensor
 """
 struct Tucker{Tv<:Number, Ti<:Int64}
-     N    :: Ti
-     rk   :: Vector{Ti}
-     I    :: Vector{Ti}
-     core :: Array{Tv}
-     U    :: Vector{Matrix{Tv}}
+    order :: Ti
+    rk    :: Vector{Ti}
+    dims  :: Vector{Ti}
+    core  :: Array{Tv}
+    u     :: Vector{Matrix{Tv}}
 end
 
 """
    constructor of tucker tensor with provided core tensor and factor matrices
 """
-function Tucker(core::Array{Tv}, U::Vector{Matrix{Tv}}) where {Tv<:Number}
+function Tucker(core::Array{Tv}, u::Vector{Matrix{Tv}}) where {Tv<:Number}
 
     # check dimensions
-    N  = ndims(core)
-    rk = collect(size(core))
+    order = ndims(core)
+    rk    = collect(size(core))
 
-    N == length(U) || error("core dimension does not match number of factors")
-    I = zeros(Int64,N)
+    order == length(u) || error("core dimension does not match number of factors")
+    dims  =  zeros(Int64, order)
 
-    for i = 1 : N
-        rk[i] == size(U[i], 2) || error("core dimension does not match factors")
-        I[i]  =  size(U[i], 1)
+    # make sure the size of u
+    for i = 1 : order
+        rk[i] == size(u[i], 2) || error("core dimension does not match factors")
+        dims[i]= size(u[i], 1)
     end
 
-    return Tucker(N, rk, I, copy(core), deepcopy(U))
+    return Tucker(order, rk, dims, copy(core), deepcopy(u))
 end
 
 """
    copy a tucker tensor
 """
-function copy_tucker(T::Tucker)
-    return Tucker(T.N, copy(T.rk), copy(T.I), copy(T.core), deepcopy(T.U))
+function copy_tucker(t::Tucker)
+    return Tucker(t.order, copy(t.rk), copy(t.dims), copy(t.core), deepcopy(t.u))
 end
 
 """
@@ -41,54 +42,60 @@ end
 """
 function tucker2tensor(t::Tucker)
 
-    C = Tensor(t.core)
-    for i = 1 : t.N
-        C = ttm(T.U[i], C, i)
-    end
-    return C
+    # create a core tensor
+    c = Tensor(t.core)
+
+    # tensor matrix multiplication
+    n = collect(1 : t.order)
+    return ttm(t.u, c, n)
 end
 
 """
    compute the n^{th} mode factor matrix by keeping the first rk eigenvectors
 """
-function nvecs(X::Tensor, n::Ti, rk::Ti) where {Ti<:Int64}
+function nvecs(t::Tensor, n::Ti, rk::Ti) where {Ti<:Int64}
 
-    Xn = matricization(X, n)
-    Y  = Xn * Xn'
-    (u, s, v) = svd(Y)
+    tn = matricization(t, n)
+
+    # shrink the size of matrix
+    y  = tn * tn'
+    (u, s, v) = svd(y)
+
+    # return the first rk left eigenvectors
     return u[:,1:rk]
 end
 
 """
    tucker decomposition by alternative minimization
 """
-function tucker_als(X::Tensor{Tv,Ti}, rk::Union{Vector{Ti},Ti};
-                   tol=1e-6, Niter=10, init_flag="eigvec") where {Tv<:Number, Ti<:Int64}
+function tucker_als(t::Tensor{Tv,Ti}, rk::Union{Vector{Ti},Ti};
+                   tol=1e-6, max_iter=10, init_flag="eigvec") where {Tv<:Number, Ti<:Int64}
 
-    N = X.N
-    I = X.I
-    fitchangetol = tol
-    normX = norm(X.D)
+    order = t.order
+    dims  = t.dims
 
-    # one rank for all the dimensions
-    if typeof(rk) <: Int64
-       rk = rk*ones(Int64, N)
+    # Frobenous norm of original tensor
+    normt = norm(t.d)
+
+    # identical rank for all the dimensions
+    if typeof(rk) == Int64
+       rk = rk * ones(Int64, order)
     end
-    N == length(rk) || error("dimension of D does not match length of rank")
+    order == length(rk) || error("dimension of t does not match the length of rank")
 
     # initialization factors
-    U = Vector{Matrix{Tv}}(undef, N)
+    u = Vector{Matrix{Tv}}(undef, order)
 
     # initialize as random matrix
-    if init_flag == "rand"
-       for i = 1 : N
-           U[i] = randn(Tv, I[i], rk[i])
+    if init_flag == "random"
+       for i = 1 : order
+           u[i] = randn(Tv, dims[i], rk[i])
        end
 
     # initialize as eigenvectors
     elseif init_flag == "eigvec"
-       for i = 1 : N
-           U[i] = nvecs(X, i, rk[i])
+       for i = 1 : order
+           u[i] = nvecs(t, i, rk[i])
        end
 
     else
@@ -96,39 +103,64 @@ function tucker_als(X::Tensor{Tv,Ti}, rk::Union{Vector{Ti},Ti};
     end
 
     fit = 0.0; fitold = 0.0;
-    core = zeros(Tv, rk...)
+    core= zeros(Tv, rk...)
 
     # iterations
-    for iter = 1 : Niter
-        fitold = fit
-        Utilde = zeros()
+    for iter = 1 : max_iter
 
-        for n = 1 : N
+        # save the fitting
+        fitold = fit
+
+        # save the last
+        utilde = zeros()
+
+        for i = 1 : order
 
             # update factor matrix
-            sets   = setdiff((1:N), n)
-            Utilde = ttm(U, X, set; transpose_flag=true)
+            v = setdiff((1:order), i)
+            utilde = ttm(u, t, v; transpose_flag=true)
 
-            # factor matrix obtained by svd
-            U[n]   = nvecs(Utilde, n, rk[n])
+            # update ith factor matrix
+            u[i]   = nvecs(utilde, i, rk[i])
         end
 
         # update core tensor
-        core = ttm(U[N], Utilde, N; transpose_flag=true)
+        core = ttm(u[order], utilde, order; transpose_flag=true)
 
         # estimate residue
-        normresidual = sqrt(abs(normX^2 - norm(core.D)^2))
-        fit = 1 - normresidual/normX
+        normresidual = sqrt(abs(normt^2 - norm(core.d)^2))
+        fit = 1 - normresidual / normt
         fitchange = fit - fitold
 
-        println("iter $iter, fit $fit, fitchange $fitchange")
+        @printf("iter %4d %.16f %.16f\n", iter, fit, fitchange)
 
         # if fitchange < tol
         #    break
         # end
     end
-    return Tucker(N, I, rk, core.D, U)
+
+    return Tucker(order, dims, rk, core.d, u)
 end
+
+# c  = randn(3,4,5);
+# rk = collect(size(c));
+# u  = Vector{Matrix{Float64}}(undef, 3)
+# dims = [21, 22, 23]
+# for i = 1 : 3
+#     a = randn(dims[i], dims[i])
+#     (p, s, v) = svd(a)
+#     u[i] = p[:,1:rk[i]]
+# end
+# t = Tucker(c, u);
+# d = tucker2tensor(t);
+#
+# dn = copy_tensor(d);
+# dn.d .= dn.d + randn(dims...)*0.05;
+# ratio = norm(d.d-dn.d) / norm(d.d)
+#
+# r = tucker_als(dn, rk; max_iter=10, init_flag="eigvec");
+# d1= tucker2tensor(r);
+# norm(d1.d-d.d) / norm(d.d)
 
 # """
 #    Wrap tucker decomposition, the input is multi-dimensional array
