@@ -2,86 +2,68 @@
    tensor structure
 """
 struct Tensor{Tv<:Number, Ti<:Int64}
-     N :: Ti
-     I :: Vector{Ti}
-     D :: Array{Tv}
+     order :: Ti
+     dims  :: Vector{Ti}
+     d     :: Array{Tv}
 end
 
 """
    create a tensor object when the input is a multi-dimensional array
 """
-function Tensor(D::Array{Tv}) where {Tv <: Number}
-    return Tensor(ndims(D), collect(size(D)), copy(D))
+function Tensor(d::Array{Tv}) where {Tv <: Number}
+    return Tensor(ndims(d), collect(size(d)), copy(d))
 end
 
 """
    copy a tucker tensor
 """
-function copy_tensor(T::Tensor)
-    return Tensor(T.N, copy(T.I), copy(T.D))
+function copy_tensor(t::Tensor)
+    return Tensor(t.order, copy(t.dims), copy(t.d))
 end
 
 """
    unfolding tensor along n dimension
 """
-function matricization(X::Tensor, n::Int64)
-
-    N = X.N
-    I = X.I
+function matricization(t::Tensor, n::Int64)
 
     if n == 1 # first dimension
-       Xn = copy(reshape(X.D, I[1], prod(I[2 : N])))
+       nr = prod(t.dims[2:t.order])
+       tn = copy(reshape(t.d, t.dims[1], nr))
+
     else
-       p = collect(1:N); p[n] = 1; p[1] = n;  # permute first and nth dimension
-       Xn = permutedims(X.D, p)
-       Xn = reshape(Xn, I[n], round(Int64, prod(I)/I[n]))
+       p = collect(1 : t.order)
+       p[1] = n
+       p[n] = 1
+       tn = permutedims(t.d, p)
+
+       nr = round(Int64, prod(t.dims) / t.dims[n])
+       tn = reshape(tn, t.dims[n], nr)
     end
 
-    return Xn
+    return tn
 end
 
 """
-   the input is multi-dimensional array
+   folding an matrix back to a tensor, dims is the dimension of the original tensor
 """
-function matricization(X::Array{Tv}, n::Int64) where Tv<:Number
-
-    I  = collect(size(X))
-    N  = ndims(X)
-
-    if n<1 || n > N
-       error("n is out of bound")
-    end
-
-    if n == 1 # first dimension
-       Xn = copy(reshape(X, I[1], prod(I[2:N])))
-    else
-       p = collect(1:N); p[n] = 1; p[1] = n;  # permute first and nth dimension
-       Xn = permutedims(X, p)
-       Xn = reshape(Xn, I[n], round(Int64, prod(I)/I[n]))
-    end
-    return Xn
-end
-
-"""
-folding an matrix back to a tensor
-"""
-function unmatricization(D::Matrix{Tv}, I::Vector{Ti}, n::Ti; return_flag="tensor") where {Tv <: Number, Ti<:Int64}
+function unmatricization(d::Matrix{Tv}, dims::Vector{Ti}, n::Ti) where {Tv <: Number, Ti<:Int64}
 
     if n == 1
-       D = reshape(D, I...)
+       d = reshape(d, dims...)
+
     else
-       I1 = copy(I); I1[1] = I[n]; I1[n] = I[1];
-       D = reshape(D, I1...)
+       tmp = copy(dims)
+       tmp[1] = dims[n]
+       tmp[n] = dims[1]
+       d = reshape(d, tmp...)
 
-       p = collect(1:length(I)); p[n] = 1; p[1] = n;
-       D = permutedims(D, p)
+       p = collect(1:length(dims))
+       p[1] = n
+       p[n] = 1
+       d = permutedims(d, p)
     end
 
-    if return_flag == "tensor"
-       return Tensor(D)
-    elseif return_flag == "array"
-       return D
-    end
+    return Tensor(d)
 end
 
 """
@@ -181,44 +163,64 @@ function recursive_krp(A::Vector{Matrix{Tv}}) where {Tv<:Number}
 end
 
 """
-tensor times one matrix
+   tensor times one matrix
 """
-function ttm(U::Matrix{Tv}, X::Tensor{Tv,Ti}, n::Ti;
+function ttm(u::Matrix{Tv}, t::Tensor{Tv,Ti}, n::Ti;
          transpose_flag=false) where {Tv <: Number, Ti<:Int64}
 
+    (k, l) = size(u)
+
     # check dimension
-    (n1, n2) = size(U)
-    Xn = matricization(X, n)
+    if transpose_flag
+       k == t.dims[n] || error("size mismatch")
+    else
+       l == t.dims[n] || error("size mismatch")
+    end
+
+    tn = matricization(t, n)
 
     # copy the dimensions of tensor
-    I = copy(X.I)
+    tmp = copy(t.dims)
 
     if transpose_flag
-       D = U' * Xn
-       I[n] = n2
+       d = u' * tn
+       tmp[n] = l
 
     else
-       D = U  * Xn
-       I[n] = n1
+       d = u  * tn
+       tmp[n] = k
     end
 
-    D = unmatricization(D, I, n)
-    return D
+    return unmatricization(d, tmp, n)
 end
 
 """
-   tensor times a series of matrices
+   tensor times a series of matrices, designed specially for HOSVD
 """
-function ttm(U::Vector{Matrix{Tv}}, X::Tensor{Tv,Ti}, n::Vector{Ti}; transpose_flag=false) where {Tv<:Number, Ti<:Int64}
+function ttm(u::Vector{Matrix{Tv}}, t::Tensor{Tv,Ti}, n::Vector{Ti}; transpose_flag=false) where {Tv<:Number, Ti<:Int64}
 
     # check dimensions
-    length(U)  == X.N || error("number of factor matrix does not match")
-    maximum(n) <= X.N || error("too large dimension")
-    minimum(n) >= 1   || error("too small dimension")
+    length(u)  == t.order || error("number of factor matrix does not match")
+    maximum(n) <= t.order || error("too large dimension")
+    minimum(n) >= 1       || error("too small dimension")
 
-    D = copy_tensor(X)
+    d = copy_tensor(t)
     for i in n
-        D = ttm(U[i], D, i; transpose_flag=transpose_flag)
+        d = ttm(u[i], d, i; transpose_flag=transpose_flag)
     end
-    return D
+
+    return d
 end
+
+# tensor
+# d = rand(11, 12, 13);
+# t = Tensor(d);
+#
+# u = Vector{Matrix{Float64}}(undef, 3)
+# for i = 1 : 3
+#     a = randn(100, 100);
+#     (p, s, v) = svd(a);
+#     u[i] = p[:,1 : t.dims[i]]
+# end
+# r = ttm(u, t, [3,1,2])
+# c = ttm(u, r, [2,3,1]; transpose_flag=true)

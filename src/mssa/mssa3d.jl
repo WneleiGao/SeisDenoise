@@ -80,7 +80,7 @@ end
 """
    mssa for a 3D cube
 """
-function mssa(d::Array{Tv,3}, dt::Tv, rk::Ti; flow=2.0, fhigh=65.0) where{Tv<:AbstractFloat, Ti<:Integer}
+function mssa(d::Array{Tv,3}, rk::Ti; dt=0.002, flow=2.0, fhigh=65.0) where{Tv<:AbstractFloat, Ti<:Integer}
 
     # fourier transform along time axis
     (n1, n2, n3) = size(d)

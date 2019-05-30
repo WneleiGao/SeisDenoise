@@ -1,4 +1,4 @@
-function fxy_eigen(d::Array{Tv,3}, dt::Tv, rk::Ti; flow=2.0, fhigh=65.0) where{Tv<:AbstractFloat, Ti<:Integer}
+function fxy_eigen(d::Array{Tv,3}, rk; dt=00.2, flow=2.0, fhigh=65.0) where{Tv<:AbstractFloat, Ti<:Integer}
 
     # fourier transform along time axis
     (n1, n2, n3) = size(d)
@@ -18,11 +18,11 @@ function fxy_eigen(d::Array{Tv,3}, dt::Tv, rk::Ti; flow=2.0, fhigh=65.0) where{T
 
         H = df[i, :, :]
 
-        (U, S, V) = svd(H)
+        (u, s, v) = svd(H)
         H = u[:,1:rk] * diagm(0=>s[1:rk]) * (v[:,1:rk])'
 
-        dp[i,:,:] = H
-        dp[n1-i+2,:,:] = conj(H)
+        dp[i,:,:] .= H
+        dp[n1-i+2,:,:] .= conj(H)
     end
 
     dp = real(ifft(dp, 1))

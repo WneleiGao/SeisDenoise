@@ -140,7 +140,7 @@ function CGLS(d, operators, parameters; Niter=10, mu=0, tol=1.0e-15)
 	      delta = real(dot(t, t) + mu * dot(s, s))
 
         if delta <= tol
-           println("delta reached tolerance, ending at iteration $iter")
+           # println("delta reached tolerance, ending at iteration $iter")
 	         break
 	      end
 
@@ -160,7 +160,7 @@ function CGLS(d, operators, parameters; Niter=10, mu=0, tol=1.0e-15)
 	      s    = beta * s + g
 
 	      if (sqrt(gamma) <= sqrt(gamma00) * tol)
-	         println("tolerance reached, ending at iteration $iter")
+	         # println("tolerance reached, ending at iteration $iter")
 	         break;
 	      end
     end
@@ -171,8 +171,8 @@ end
 """
    fxy prediction filter
 """
-function fxy_prediction(cube::Array{Tv,3}; dt=0.002, L::Int64=5,
-         flow=0.0, fhigh=80.0, Niter=15, mu=0.000001, tol=1.0e-8) where {Tv<:AbstractFloat}
+function fxy_prediction(cube::Array{Tv,3}, L; dt=0.002,
+         flow=2.0, fhigh=65.0, Niter=15, mu=0.000001, tol=1.0e-8) where {Tv<:AbstractFloat}
 
     dt = convert(Tv, dt)
     (nt, n1, n2) = size(cube)
@@ -215,7 +215,7 @@ function fxy_prediction(cube::Array{Tv,3}; dt=0.002, L::Int64=5,
         dout[iw, :, :]    .= b
         dout[nf-iw+2,:,:] .= conj.(dout[iw, :, :])
 
-        println("$iw")
+        # println("$iw")
     end
 
     dout = real(ifft(dout, 1))
