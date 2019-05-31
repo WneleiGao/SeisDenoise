@@ -10,7 +10,7 @@ d = SeisLinearEvents(;ot=0.0,dt=dt, nt=100, ox1=0.0, dx1=10.0,
                       amp=[1.0,-1.0], f0=24.0);
 
 # add random noise to data
-dn = SeisAddNoise(d, 1.0);
+dn = SeisAddNoise(d, 0.5);
 
 # tucker decomposition
 s1 = tucker_als(Tensor(dn), 12; init_flag="eigvec");
@@ -20,7 +20,7 @@ s1 = tucker2tensor(s1).d;
 s2 = mssa(dn, 2; dt=dt, flow=0.0, fhigh=60.0);
 
 # fxy prediction
-s3 = fxy_prediction(dn, 2; dt=dt, flow=0.0, fhigh=60.0,
+s3 = fxy_prediction(dn, 2; dt=dt, flow=2.0, fhigh=60.0,
                     max_iter=10, mu=1.0e-6, tol=1.0e-9);
 
 # fxy eigen

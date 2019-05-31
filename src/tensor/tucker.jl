@@ -69,7 +69,7 @@ end
    tucker decomposition by alternative minimization
 """
 function tucker_als(t::Tensor{Tv,Ti}, rk::Union{Vector{Ti},Ti};
-                   tol=1e-6, max_iter=10, init_flag="eigvec") where {Tv<:Number, Ti<:Int64}
+                    tol=1e-6, max_iter=10, init_flag="eigvec") where {Tv<:Number, Ti<:Int64}
 
     order = t.order
     dims  = t.dims
@@ -132,14 +132,68 @@ function tucker_als(t::Tensor{Tv,Ti}, rk::Union{Vector{Ti},Ti};
         fit = 1 - normresidual / normt
         fitchange = fit - fitold
 
-        @printf("iter %4d %.16f %.16f\n", iter, fit, fitchange)
-
-        # if fitchange < tol
-        #    break
-        # end
+        # @printf("iter %4d %.16f %.16f\n", iter, fit, fitchange)
     end
 
     return Tucker(order, dims, rk, core.d, u)
+end
+
+"""
+   divide the cube into patches along spatial direction and apply mssa
+to each patches independently.
+"""
+function local_tucker_als(cube::Array{Tv,3}, rk::Union{Vector{Ti},Ti}, work_dir::String;
+                          tol=1e-6, max_iter=10, init_flag="eigvec",
+                          it_wl = 30, it_wo = 10, x1_wl = 30, x1_wo = 10, x2_wl = 30, x2_wo = 10) where {Tv<:AbstractFloat, Ti<:Int64}
+
+     # divide the cube into patches
+     vec_dir = patch(work_dir, cube, it_wl, it_wo, x1_wl, x1_wo, x2_wl, x2_wo);
+
+     # pack arguments into a Dictionary
+     num_patches = length(vec_dir)
+     params = Vector{Dict}(undef, num_patches)
+     for i = 1 : num_patches
+         params[i] = Dict(:path=>vec_dir[i], :rk=>rk, :tol=>tol, :max_iter=>max_iter, :init_flag=>init_flag)
+     end
+
+     # wrap_fxy_prediction
+     function wrap_tucker_als(params::Dict)
+
+         # read one patch
+         (d, nt, n1, n2, itl, itu, x1l, x1u, x2l, x2u, it_wo, x1_wo, x2_wo, code) = read_one_patch(params[:path], return_flag=true)
+
+         # denoising
+         s = tucker_als(Tensor(d), params[:rk]; tol=params[:tol], max_iter=params[:max_iter], init_flag=params[:init_flag])
+         s = tucker2tensor(s)
+
+         # write the result back
+         fid = open(params[:path], "r+")
+         pos = sizeof(Int64) * 13
+         seek(fid, pos)
+
+         if code == 1
+            write(fid, convert(Vector{Float64}, vec(s.d)))
+         elseif code == 2
+            write(fid, convert(Vector{Float32}, vec(s.d)))
+         end
+         close(fid)
+
+         return nothing
+     end
+
+     # apply fxy_prediction to each patch
+     pmap(wrap_tucker_als, params)
+
+     # taper the boundary of each patch
+     par_taper(vec_dir)
+
+     # merge patches
+     s = unpatch(vec_dir)
+
+     # remove the patches
+     pmap(rm, vec_dir)
+
+     return s
 end
 
 # c  = randn(3,4,5);

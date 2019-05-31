@@ -119,3 +119,62 @@ function mssa(d::Array{Tv,3}, rk::Ti; dt=0.002, flow=2.0, fhigh=65.0) where{Tv<:
     dp = real(ifft(dp, 1))
     return dp
 end
+
+
+"""
+   divide the cube into patches along spatial direction and apply mssa
+to each patches independently.
+"""
+function local_mssa(cube::Array{Tv,3}, rk::Ti, work_dir::String;
+         dt=0.004, flow=2.0, fhigh=60.0,
+         x1_wl = 30, x1_wo = 10,
+         x2_wl = 30, x2_wo = 10) where {Tv<:AbstractFloat, Ti<:Int64}
+
+     # divide the cube into patches
+     vec_dir = spatial_patch(work_dir, cube, x1_wl, x1_wo, x2_wl, x2_wo);
+
+     # pack arguments into a Dictionary
+     num_patches = length(vec_dir)
+     params = Vector{Dict}(undef, num_patches)
+     for i = 1 : num_patches
+         params[i] = Dict(:path=>vec_dir[i], :rk=>rk, :dt=>dt, :flow=>flow, :fhigh=>fhigh)
+     end
+
+     # wrap_fxy_prediction
+     function wrap_mssa(params::Dict)
+
+         # read one patch
+         (d, nt, n1, n2, x1l, x1u, x2l, x2u, x1_wo, x2_wo, code) = read_one_spatial_patch(params[:path], return_flag=true)
+
+         # denoising
+         s = mssa(d, params[:rk]; dt=params[:dt], flow=params[:flow], fhigh=params[:fhigh])
+
+         # write the result back
+         fid = open(params[:path], "r+")
+         pos = sizeof(Int64) * 10
+         seek(fid, pos)
+
+         if code == 1
+            write(fid, convert(Vector{Float64}, vec(s)))
+         elseif code == 2
+            write(fid, convert(Vector{Float32}, vec(s)))
+         end
+         close(fid)
+
+         return nothing
+     end
+
+     # apply fxy_prediction to each patch
+     pmap(wrap_mssa, params)
+
+     # taper the boundary of each patch
+     par_spatial_taper(vec_dir)
+
+     # merge patches
+     s = spatial_unpatch(vec_dir)
+
+     # remove the patches
+     pmap(rm, vec_dir)
+
+     return s
+end

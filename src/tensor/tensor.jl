@@ -9,8 +9,8 @@ export Tensor,
        copy_tucker,
        tucker2tensor,
        nvecs,
-       tucker_als
-
+       tucker_als,
+       local_tucker_als
 
 include("basic.jl")
 include("tucker.jl")

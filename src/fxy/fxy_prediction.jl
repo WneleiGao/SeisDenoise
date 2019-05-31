@@ -183,8 +183,8 @@ function fxy_prediction(cube::Array{Tv,3}, L; dt=0.002,
     df = 1.0 / dt / nf
 
     # frequency index
-    iw_lower = floor(Int64, flow  / dt) + 1
-    iw_upper = floor(Int64, fhigh / dt) + 1
+    iw_lower = floor(Int64, flow  / df) + 1
+    iw_upper = floor(Int64, fhigh / df) + 1
     iw_lower = iw_lower < 2   ? 2   : iw_lower
     iw_upper = iw_upper > nyq ? nyq : iw_upper
 
@@ -193,7 +193,7 @@ function fxy_prediction(cube::Array{Tv,3}, L; dt=0.002,
     cube = fft(cube, 1)
 
     # allocate space for the filtered data
-    dout = copy(cube)
+    dout = zero(cube)
 
     # tmporary data
     b = zeros(Complex{Tv}, n1, n2)
@@ -227,64 +227,62 @@ end
    divide the cube into patches along spatial direction and apply fxy prediction
 to each patches independently.
 """
-# function local_fxy_prediction(cube::Array{Tv,3}, L::Ti, work_dir::String;
-#          dt=0.002, flow=2.0, fhigh=65.0,
-#          x1_wl = 30, x1_wo = 10,
-#          x2_wl = 30, x2_wo = 10,
-#          max_iter=15, mu=0.000001, tol=1.0e-8) where {Tv<:AbstractFloat, Ti<:Int64}
-#
-#      # divide the cube into patches
-#      vec_dir = spatial_patch(work_dir, cube, x1_wl, x1_wo, x2_wl, x2_wo);
-#
-#      # pack arguments into a Dictionary
-#      num_patches = length(vec_dir)
-#      params = Vector{Dict}(undef, num_patches)
-#      for i = 1 : num_patches
-#          params[i] = Dict(:path=>vec_dir[i],:L=>L,
-#                      :dt=>dt, :flow=>flow, :fhigh=>fhigh, :max_iter=>max_iter, :mu=>mu, :tol=>tol)
-#      end
-#
-#      # wrap_fxy_prediction
-#      function wrap_fxy_prediction(params::Dict)
-#
-#          # read one patch
-#          (d, nt, n1, n2, x1l, x1u, x2l, x2u, x1_wo, x2_wo, code) = read_one_spatial_patch(params[:path], return_flag=true)
-#
-#          # denoising
-#          s = fxy_prediction(d, params[:L]; dt=params[:dt], flow=params[:flow], fhigh=params[:fhigh],
-#                                            max_iter=params[:max_iter], mu=params[:mu], tol=params[:tol])
-#
-#          # write the result back
-#          fid = open(params[:path], "r+")
-#          pos = sizeof(Int64) * 10
-#          seek(fid, pos)
-#
-#          if code == 1
-#             write(fid, convert(Vector{Float64}, vec(s)))
-#          elseif code == 2
-#             write(fid, convert(Vector{Float32}, vec(s)))
-#          end
-#          close(fid)
-#
-#          return nothing
-#      end
-#
-#      # apply fxy_prediction to each patch
-#      pmap(wrap_fxy_prediction, params)
-#
-#      # taper the boundary of each patch
-#      par_spatial_taper(vec_dir)
-#
-#      # merge patches
-#      s = spatial_unpatch(vec_dir)
-#
-#      # remove the patches
-#      pmap(rm, vec_dir)
-#
-#      return s
-# end
+function local_fxy_prediction(cube::Array{Tv,3}, L::Ti, work_dir::String;
+         dt=0.004, flow=2.0, fhigh=60.0,
+         x1_wl = 30, x1_wo = 10,
+         x2_wl = 30, x2_wo = 10,
+         max_iter=10, mu=1.0e-6, tol=1.0e-9) where {Tv<:AbstractFloat, Ti<:Int64}
 
+     # divide the cube into patches
+     vec_dir = spatial_patch(work_dir, cube, x1_wl, x1_wo, x2_wl, x2_wo);
 
+     # pack arguments into a Dictionary
+     num_patches = length(vec_dir)
+     params = Vector{Dict}(undef, num_patches)
+     for i = 1 : num_patches
+         params[i] = Dict(:path=>vec_dir[i],:L=>L,
+                     :dt=>dt, :flow=>flow, :fhigh=>fhigh, :max_iter=>max_iter, :mu=>mu, :tol=>tol)
+     end
+
+     # wrap_fxy_prediction
+     function wrap_fxy_prediction(params::Dict)
+
+         # read one patch
+         (d, nt, n1, n2, x1l, x1u, x2l, x2u, x1_wo, x2_wo, code) = read_one_spatial_patch(params[:path], return_flag=true)
+
+         # denoising
+         s = fxy_prediction(d, params[:L]; dt=params[:dt], flow=params[:flow], fhigh=params[:fhigh],
+                            max_iter=params[:max_iter], mu=params[:mu], tol=params[:tol])
+
+         # write the result back
+         fid = open(params[:path], "r+")
+         pos = sizeof(Int64) * 10
+         seek(fid, pos)
+
+         if code == 1
+            write(fid, convert(Vector{Float64}, vec(s)))
+         elseif code == 2
+            write(fid, convert(Vector{Float32}, vec(s)))
+         end
+         close(fid)
+
+         return nothing
+     end
+
+     # apply fxy_prediction to each patch
+     pmap(wrap_fxy_prediction, params)
+
+     # taper the boundary of each patch
+     par_spatial_taper(vec_dir)
+
+     # merge patches
+     s = spatial_unpatch(vec_dir)
+
+     # remove the patches
+     pmap(rm, vec_dir)
+
+     return s
+end
 
 # """
 #    fxy prediction filter, op is the 2D filter, filter size is (2L+1) \times (2L+1)
