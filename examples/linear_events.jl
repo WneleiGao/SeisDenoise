@@ -21,7 +21,7 @@ s2 = mssa(dn, 2; dt=dt, flow=0.0, fhigh=60.0);
 
 # fxy prediction
 s3 = fxy_prediction(dn, 2; dt=dt, flow=0.0, fhigh=60.0,
-                    Niter=10, mu=1.0e-6, tol=1.0e-9);
+                    max_iter=10, mu=1.0e-6, tol=1.0e-9);
 
 # fxy eigen
 s4 = fxy_eigen(dn, 2; dt=dt, flow=0.0, fhigh=60.0);
