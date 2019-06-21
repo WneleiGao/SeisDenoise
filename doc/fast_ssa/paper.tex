@@ -1,0 +1,346 @@
+
+%\documentclass[manuscript,endfloat]{geophysics}
+\documentclass[revised,endfloat]{geophysics}
+%\documentclass[twocolumn,endfloat]{geophysics}
+
+\usepackage{xy}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{rotating}
+\usepackage{lscape}
+\usepackage{color}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{amssymb}      
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+ \usepackage{tikz}
+ \usetikzlibrary{matrix}
+ 
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\SetKwProg{Fn}{Function}{}{}
+
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\setlength\parindent{0pt}
+
+\setlength\heavyrulewidth{0.25ex}
+
+\DeclareGraphicsExtensions{.pdf}
+\DeclareMathAlphabet\mathbfcal{OMS}{cmsy}{b}{n}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\begin{document}
+
+\title{Structured matrix}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\address{
+\footnotemark[1]Department of Physics,\\
+University of Alberta, \\
+Edmonton, Alberta, Canada. \\}
+
+\author{Wenlei Gao\footnotemark[1]} 
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ABSTRACT                                                                   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+The documentation for fast MSSA and relationship between multi-dimensional convolution and structured matrix, such as Circulant, Toeplitz and Hankel matrix.
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\citep{korobeynikov2009} proposed the computation and memory efficient method for MSSA.
+                                                                 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Method}
+We start from the definition of discrete fourier transform.
+
+\subsection{Discrete Fourier transform (DFT)}
+For a vector ${\bf s}$ length of $N$, the discrete Fourier transform is  defined as
+\begin{equation}
+\tilde{s}_k  = \sum_{l=0}^{N-1} e^{-i 2 \pi k l / N} s_l \,,
+\label{eq1}
+\end{equation}
+where the index $k = 0, 1, 2, \cdots, N-1$. Suppose the vector ${\bf s}$ represent a time series length of $N$ with time sampling interval is $\Delta t$. So the frequency sampling interval $\Delta f$ can be computed as 
+\begin{equation}
+\Delta f  = 1/ \Delta t / N = \frac{1}{N \Delta t}
+\label{eq2}
+\end{equation}
+The Fourier transform for this time series in continueous case can be expressed as
+\begin{equation}
+\tilde{s}(f)  = \int e^{-i 2 \pi f t} s(t) dt 
+\label{eq3}
+\end{equation}
+In discrete case and assume the frequency $f$ can be expressed as $f = k \Delta f$ and using the expression in equation \ref{eq2}
+\begin{equation}
+\begin{split}
+\tilde{s}_{k \Delta f}  &= \sum_{l=0}^{N-1} e^{-i 2 \pi \, k \Delta f \,  l \Delta t} s_{l \Delta t}  \\
+\tilde{s}_{k \Delta f}  &= \sum_{l=0}^{N-1} e^{-i 2 \pi \, k \frac{1}{N \Delta t} \,  l \Delta t} s_{l \Delta t} \\
+\tilde{s}_{k}  &= \sum_{l=0}^{N-1} e^{-i 2 \pi \, k l / N} s_l \,.
+\end{split}
+\label{eq4}
+\end{equation}
+The the last equation is exactly same as the equation \ref{eq1}. Through this derivation, we can understand the physical meaning of the Fourier coefficients obtained via discrete Fourier transform. Note that the first coefficient corresponding to $0$ frequency and so as to the time series. The first element of ${\bf s}$ is the sample at $0$ time. 
+
+The above operation can be expressed into the matrix-vector form. To simplify the definition of Fourier transform matrix, we define a variable $z = e^{-i \pi  / N}$, so the Fourier transform matrix, which is a $N$-by-$N$ square matrix and the element $F_{kl} = z^{kl}$. It can be expanded as
+\begin{equation}
+{\bf F}_N = \begin{bmatrix}
+1 & 1 & \cdots & 1 \\
+1 & z & \cdots & z^{N-1} \\
+1 & z^2 & \cdots & z^{2(N-1)} \\
+\vdots & \vdots & \ddots & \vdots \\
+1 & z^{N-1} & \cdots & z^{(N-1)(N-1)} \\
+\end{bmatrix}
+\label{eq5}
+\end{equation}
+As ${\bf F}_N$ is a orthogonal (but not orthonormal) matrix, we can be easily get the its inverse matrix
+\begin{equation}
+{\bf F}_N^{-1} = \frac{1}{N} {\bf F}_N^H = \frac{1}{N} {\bf F}_N^{\ast} \,
+\label{eq6}
+\end{equation}
+where the super-script $^H$ represent complex conjugate transpose and $\ast$ indicate conjugate transpose. As the matrix ${\bf F}_N$ is a symmetrical matrix, that's why we can get equation \ref{eq6}.
+
+\subsection{Circulant matrix}
+An $9 \times 9$ circulant matrix is defined as
+\begin{equation}
+{\bf C} = 
+\begin{bmatrix}
+c_1 & c_9 & c_8 & c_7 & c_6 & c_5 &  c_4 & c_3 & c_2 \\ 
+c_2 & c_1 & c_9 & c_8 & c_7 & c_6 &  c_5 & c_4 & c_3 \\ 
+c_3 & c_2 & c_1 & c_9 & c_8 & c_7 &  c_6 & c_5 & c_4 \\ 
+c_4 & c_3 & c_2 & c_1 & c_9 & c_8 &  c_7 & c_6 & c_5 \\ 
+c_5 & c_4 & c_3 & c_2 & c_1 & c_9 &  c_8 & c_7 & c_6 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 & c_1 &  c_9 & c_8 & c_7 \\ 
+c_7 & c_6 & c_5 & c_4 & c_3 & c_2 &  c_1 & c_9 & c_8 \\ 
+c_8 & c_7 & c_6 & c_5 & c_4 & c_3 &  c_2 & c_1 & c_9 \\ 
+c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\ 
+\end{bmatrix}
+\end{equation} 
+A circulant matrix is fully specified by its first column ${\bf c} = \begin{bmatrix}
+c_1 & c_2 &  c_3 &  c_4 &  c_5 &  c_6 &  c_7 &  c_8 &  c_9  \end{bmatrix}^T$, we know that the product between circulant matrix and a vector ${\bf v}$ length of $N$ is equivalent to the circular convolution between vector ${bf c}$ and ${\bf v}$, and the circular convolution can be computed efficiently via Fast Fourier transform (FFT). So we have
+\begin{equation}
+{\bf Cv} = {\bf F}_N^{-1} \left(  {\bf F}_N {\bf c} \circ {\bf F}_N {\bf v} \right)  =  {\bf F}_N^{-1} \left(  diag({\bf F}_N {\bf c}) {\bf F}_N {\bf v} \right) \,,
+\end{equation}
+where the symbol $\circ$ and $diag$ represents Hardmard (element-wise) multiplication and building diagonal matrix from a vector.
+
+\subsection{Toeplitz matrix}
+Toeplitz matrix is associated with linear convolution, suppose we have two vectors ${\bf s} = \begin{bmatrix}  s_1 & s_2 & s_3 & s_4 & s_5  \end{bmatrix}^T$ and ${\bf f} =  \begin{bmatrix}  f_1 & f_2 & f_3 & f_4 & f_5  \end{bmatrix}^T$,  the linear convolution of these two vectors is vector ${\bf r}$ length of $9$. We can represent the convolution into matrix-vector form as
+\begin{equation}
+{\bf r} = {\bf  h} \ast {\bf f} = \begin{bmatrix}
+r_1 \\
+r_2 \\
+r_3 \\
+r_4 \\
+r_5 \\
+r_6 \\
+r_7 \\
+r_8 \\
+r_9 \\
+\end{bmatrix}
+= \begin{bmatrix}
+s_1    & \quad & \quad & \quad & \quad  \\ 
+s_2    & s_1    & \quad & \quad & \quad  \\ 
+s_3    & s_2    & s_1 & \quad & \quad \\ 
+s_4    & s_3 & s_2 & s_1 & \quad  \\ 
+s_5    & s_4 & s_3 & s_2 & s_1  \\ 
+\quad & s_5 & s_4 & s_3 & s_2 \\ 
+\quad & \quad & s_5 & s_4 & s_3  \\ 
+\quad & \quad & \quad & s_5 & s_4 \\ 
+\quad & \quad & \quad & \quad & s_5  \\ 
+\end{bmatrix}
+\begin{bmatrix}
+f_1 \\
+f_2 \\
+f_3 \\
+f_4 \\
+f_5 \\
+\end{bmatrix}
+\end{equation}
+The efficient linear convolution usually padding $0$ to vectors make their length equal to $9$, after padding zeros, we get new vector $\hat{\bf s} = \begin{bmatrix}  s_1 & s_2 & s_3 & s_4 & s_5 & 0 & 0 & 0 & 0 \end{bmatrix}$ and  $\hat{\bf f} = \begin{bmatrix}  f_1 & f_2 & f_3 & f_4 & f_5 & 0 & 0 & 0 & 0 \end{bmatrix} $, the circular convolution between $\hat{\bf s}$ and $\hat{\bf f}$ can be expressed as
+\begin{equation}
+\hat{\bf r} = \hat{\bf s} \circledast \hat{\bf f} = \begin{bmatrix}
+s_1 & 0     & 0     & 0    & 0     & s_5 &  s_4 & s_3 & s_2 \\ 
+s_2 & s_1 & 0     & 0    & 0     & 0     &  s_5 & s_4 & s_3 \\ 
+s_3 & s_2 & s_1 & 0    & 0     & 0     &  0    & s_5 & s_4 \\ 
+s_4 & s_3 & s_2 & s_1 & 0     & 0     &  0 & 0 & s_5 \\ 
+s_5 & s_4 & s_3 & s_2 & s_1 & 0     &  0 & 0 & 0 \\ 
+0    & s_5  & s_4 & s_3 & s_2 & s_1 &  0 & 0 & 0 \\ 
+0    & 0     & s_5 & s_4  & s_3 & s_2 &  s_1 & 0 & 0 \\ 
+0    & 0     & 0    & s_5  & s_4 & s_3 &  s_2 & s_1 & 0 \\ 
+0    & 0     & 0    & 0     &  s_5 & s_4 &  s_3 & s_2 & s_1 \\ 
+\end{bmatrix}
+\begin{bmatrix}
+f_1 \\
+f_2 \\
+f_3 \\
+f_4 \\
+f_5 \\
+0 \\
+0 \\
+0 \\
+0 \\
+\end{bmatrix}
+\label{eq10}
+\end{equation}
+When can see that $\hat{\bf r} = {\bf r}$, so linear convolution can be efficiently computed by padding zeros to vectors then compute circular convolution in frequency domain.
+
+Let's consider another Toeplitz matrix built from a vector ${\bf c} = \begin{bmatrix}
+c_1 & c_2 & c_3 & c_4 & c_5 & c_6 & c_7 & c_8 & c_9 \end{bmatrix}$ with length $N=9$, we first determine two integer: $L$ and $K$ make $L+K-1= N $. To make the matrix close to square form, we determine them by
+\begin{equation}
+L = \floor*{\frac{N}{2}}+1 ,\,\, K = N+1-L
+\label{eq11}
+\end{equation}
+in this special case, $N=9$, so $L=K=5$, the Toeplitz matrix build from this vector can be expressed as
+\begin{equation}
+{\bf T} = 
+\begin{bmatrix}
+c_5 & c_4 & c_3 & c_2 & c_1 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 \\ 
+c_7 & c_6 & c_5 & c_4 & c_3 \\ 
+c_8 & c_7 & c_6 & c_5 & c_4 \\ 
+c_9 & c_8 & c_7 & c_6 & c_5 \\ 
+\end{bmatrix}
+\label{eq12}
+\end{equation} 
+The vector ${\bf c}$ can be uniquely determined from the last column and last row. There are two way to embedding this Teoplitz matrix into a circular matrix, the first to embedding this matrix at the lower-left part of the circular matrix created by vector ${\bf c}$, which shows as below as
+\begin{center}
+\begin{tikzpicture}
+  \matrix (m)[
+    matrix of math nodes,
+    nodes in empty cells,
+    minimum width=width("123"),
+  ] {
+c_1 & c_9 & c_8 & c_7 & c_6 & c_5 &  c_4 & c_3 & c_2 \\ 
+c_2 & c_1 & c_9 & c_8 & c_7 & c_6 &  c_5 & c_4 & c_3 \\ 
+c_3 & c_2 & c_1 & c_9 & c_8 & c_7 &  c_6 & c_5 & c_4 \\ 
+c_4 & c_3 & c_2 & c_1 & c_9 & c_8 &  c_7 & c_6 & c_5 \\ 
+c_5 & c_4 & c_3 & c_2 & c_1 & c_9 &  c_8 & c_7 & c_6 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 & c_1 &  c_9 & c_8 & c_7 \\ 
+c_7 & c_6 & c_5 & c_4 & c_3 & c_2 &  c_1 & c_9 & c_8 \\ 
+c_8 & c_7 & c_6 & c_5 & c_4 & c_3 &  c_2 & c_1 & c_9 \\ 
+c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\ 
+  } ;
+\draw (m-9-1.south west) rectangle (m-5-5.north east);
+\end{tikzpicture}
+\end{center}
+The above circulant matrix is called ${\bf C}_1$. We can also create a new vector $\hat{\bf c} = \begin{bmatrix} c_5 & c_6 & c_7 & c_8 & c_9 & c_1 & c_2 & c_3 & c_4 \end{bmatrix}^T$, which is obtained by permutating the elements of the original vector, the Toeplitz matrix can be embedded at the upper-left part of the circulant matrix created from $\hat{\bf c}$ shows as bellow
+ \begin{center}
+\begin{tikzpicture}
+  \matrix (m)[
+    matrix of math nodes,
+    nodes in empty cells,
+    minimum width=width("123"),
+  ] {
+c_5 & c_4 & c_3 & c_2 & c_1 & c_9 &  c_8 & c_7 & c_6 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 & c_1 &  c_9 & c_8 & c_7 \\ 
+c_7 & c_6 & c_5 & c_4 & c_3 & c_2 &  c_1 & c_9 & c_8 \\ 
+c_8 & c_7 & c_6 & c_5 & c_4 & c_3 &  c_2 & c_1 & c_9 \\ 
+c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\ 
+c_1 & c_9 & c_8 & c_7 & c_6 & c_5 &  c_4 & c_3 & c_2 \\ 
+c_2 & c_1 & c_9 & c_8 & c_7 & c_6 &  c_5 & c_4 & c_3 \\ 
+c_3 & c_2 & c_1 & c_9 & c_8 & c_7 &  c_6 & c_5 & c_4 \\ 
+c_4 & c_3 & c_2 & c_1 & c_9 & c_8 &  c_7 & c_6 & c_5 \\ 
+} ;
+\draw (m-5-1.south west) rectangle (m-1-5.north east);
+\end{tikzpicture}
+\end{center}
+ and call this new matrix as ${\bf C}_2$.
+ 
+Suppose we need to compute the product between Toeplitz matrix ${\bf T}$ and a vector ${\bf v}$
+\begin{equation}
+{\bf r} = {\bf T}{\bf v} \,
+\end{equation} 
+where the length of ${\bf v}$ is $K$.
+There are two way to do it efficiently via FFT, and these two ways corresponding to the two embedding methods. The first step is to padding vector ${\bf v}$ with $L-1$ $0s$ get a new vector $\hat{\bf v}$. Following above example, $K=L=5$ and ${\bf v} = \begin{bmatrix} v_1 & v_2 & v_3 & v_4 & v_5  \end{bmatrix}^T$, and the padded vector $\hat{\bf v} = \begin{bmatrix} v_1 & v_2 & v_3 & v_4 & v_5 & 0 & 0 & 0 & 0 \end{bmatrix}^T$, The product between ${\bf C}_1$ and $\hat{\bf v}$ are
+\begin{equation}
+\hat{\bf r}_1 = {\bf C}_1 \hat{\bf v} = \begin{bmatrix}
+c_1 & c_9 & c_8 & c_7 & c_6 & c_5 &  c_4 & c_3 & c_2 \\ 
+c_2 & c_1 & c_9 & c_8 & c_7 & c_6 &  c_5 & c_4 & c_3 \\ 
+c_3 & c_2 & c_1 & c_9 & c_8 & c_7 &  c_6 & c_5 & c_4 \\ 
+c_4 & c_3 & c_2 & c_1 & c_9 & c_8 &  c_7 & c_6 & c_5 \\ 
+c_5 & c_4 & c_3 & c_2 & c_1 & c_9 &  c_8 & c_7 & c_6 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 & c_1 &  c_9 & c_8 & c_7 \\ 
+c_7 & c_6 & c_5 & c_4 & c_3 & c_2 &  c_1 & c_9 & c_8 \\ 
+c_8 & c_7 & c_6 & c_5 & c_4 & c_3 &  c_2 & c_1 & c_9 \\ 
+c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\ 
+\end{bmatrix}
+\begin{bmatrix}
+v_1 \\
+v_2 \\
+v_3 \\
+v_4 \\
+v_5 \\
+0 \\
+0 \\
+0 \\
+0 \\
+\end{bmatrix}
+\end{equation}
+where the last $L$ elements of $\hat{\bf r}_1$ equal to ${\bf r}$. On the other hand, we can take advantage of the circulate matrix ${\bf C}_2$, we have
+\begin{equation}
+\hat{\bf r}_2 = {\bf C}_2 \hat{\bf v} = \begin{bmatrix}
+c_5 & c_4 & c_3 & c_2 & c_1 & c_9 &  c_8 & c_7 & c_6 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 & c_1 &  c_9 & c_8 & c_7 \\ 
+c_7 & c_6 & c_5 & c_4 & c_3 & c_2 &  c_1 & c_9 & c_8 \\ 
+c_8 & c_7 & c_6 & c_5 & c_4 & c_3 &  c_2 & c_1 & c_9 \\ 
+c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\ 
+c_1 & c_9 & c_8 & c_7 & c_6 & c_5 &  c_4 & c_3 & c_2 \\ 
+c_2 & c_1 & c_9 & c_8 & c_7 & c_6 &  c_5 & c_4 & c_3 \\ 
+c_3 & c_2 & c_1 & c_9 & c_8 & c_7 &  c_6 & c_5 & c_4 \\ 
+c_4 & c_3 & c_2 & c_1 & c_9 & c_8 &  c_7 & c_6 & c_5 \\ 
+\end{bmatrix}
+\begin{bmatrix}
+v_1 \\
+v_2 \\
+v_3 \\
+v_4 \\
+v_5 \\
+0 \\
+0 \\
+0 \\
+0 \\
+\end{bmatrix}
+\end{equation}
+So the first $L$ elements of $\hat{\bf r}_2$ equal to ${\bf r}$. We summarize the efficient computation of the product between Toeplitz matrix and a vector in Algorithm 1 and Algorithm 2
+\begin{algorithm}
+      \SetAlgoLined
+      \Fn{ ${\bf v}= ttv({\bf c}, {\bf v}) $}{
+      length of ${\bf c}$: $N = length({\bf c})$   \\
+      compute $L = \floor*{\frac{N}{2}}$, $K = N+1 - L$   \\
+      padding $L-1$ $0$s to the end of ${\bf v}$ to get a new vector $\hat{\bf v}$ with length of $N$\\
+      ${\bf r}_1 = {\bf F}_N^{-1} \left(   {\bf F}_N {\bf c} \circ {\bf F}_N  \hat{\bf v}\right) $ \\
+      take the last $L$ elements from ${\bf r}_1$ 
+      }
+      \caption{Teoplitz-Times-Vector}
+\end{algorithm}
+
+Another method is summarized in Algorithm 2 as 
+\begin{algorithm}
+      \SetAlgoLined
+      \Fn{ ${\bf v}= ttv({\bf c}, {\bf v}) $}{
+      length of ${\bf c}$: $N = length({\bf c})$   \\
+      compute $L = \floor*{\frac{N}{2}}$, $K = N+1 - L$   \\
+      padding $L-1$ $0$s to the end of ${\bf v}$ to get a new vector $\hat{\bf v}$ with length of $N$\\
+      move the first $L-1$ element of ${\bf c}$ to the end, get a new vector $\hat{\bf c}$
+      ${\bf r}_2 = {\bf F}_N^{-1} \left(   {\bf F}_N \hat{\bf c} \circ {\bf F}_N  \hat{\bf v}\right) $ \\
+      take the first $L$ elements from ${\bf r}_2$ 
+      }
+      \caption{Teoplitz-Times-Vector}
+\end{algorithm}
+
+ 
+\bibliographystyle{seg}
+\bibliography{paper}
+
+\end{document}
+

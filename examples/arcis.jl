@@ -74,6 +74,8 @@ function stack_raw_data(path_fold::Ts, path_data::Ts) where {Ts<:String}
     # read the foldmap
     fold = read(path_fold)
 
+    
+
         dout = zeros(Float32, nt, numcr, numin)
     fdata = open(pd, "r")
     esize = 4
