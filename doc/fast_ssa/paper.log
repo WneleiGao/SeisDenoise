@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  21 JUN 2019 16:00
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  28 JUN 2019 15:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -796,22 +796,22 @@ Overfull \hbox (32.23477pt too wide) in paragraph at lines 197--199
  []
 
 [3]
-Overfull \hbox (110.52052pt too wide) in paragraph at lines 236--237
+Overfull \hbox (89.77634pt too wide) in paragraph at lines 237--238
 \OT1/cmr/m/n/10.95 The above cir-cu-lant ma-trix is called $\OT1/cmr/bx/n/10.95
- C[]$\OT1/cmr/m/n/10.95 . We can also cre-ate a new vec-tor $[] = [][]$,
+ C[]$\OT1/cmr/m/n/10.95 . We can cre-ate a new vec-tor $[] = [][]$,
  []
 
-[4] (./paper.bbl) AED endfloat: Processing end Figures and Tables [5]
+[4] [5] (./paper.bbl) AED endfloat: Processing end Figures and Tables [6]
 (./paper.aux) )
 (\end occurred inside a group at level 1)
 
 ### simple group (level 1) entered at line 1061 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 16996 strings out of 493014
- 314379 string characters out of 6133351
- 442655 words of memory out of 5000000
- 20194 multiletter control sequences out of 15000+600000
+ 16997 strings out of 493014
+ 314385 string characters out of 6133351
+ 442660 words of memory out of 5000000
+ 20195 multiletter control sequences out of 15000+600000
  11948 words of font info for 48 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  55i,16n,70p,838b,3273s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -829,10 +829,10 @@ usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></u
 sr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr
 /local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/
 local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on paper.pdf (5 pages, 159028 bytes).
+Output written on paper.pdf (6 pages, 161828 bytes).
 PDF statistics:
- 79 PDF objects out of 1000 (max. 8388607)
- 57 compressed objects within 1 object stream
+ 82 PDF objects out of 1000 (max. 8388607)
+ 59 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

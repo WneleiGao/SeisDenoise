@@ -127,9 +127,9 @@ c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\
 \end{bmatrix}
 \end{equation} 
 A circulant matrix is fully specified by its first column ${\bf c} = \begin{bmatrix}
-c_1 & c_2 &  c_3 &  c_4 &  c_5 &  c_6 &  c_7 &  c_8 &  c_9  \end{bmatrix}^T$, we know that the product between circulant matrix and a vector ${\bf v}$ length of $N$ is equivalent to the circular convolution between vector ${bf c}$ and ${\bf v}$, and the circular convolution can be computed efficiently via Fast Fourier transform (FFT). So we have
+c_1 & c_2 &  c_3 &  c_4 &  c_5 &  c_6 &  c_7 &  c_8 &  c_9  \end{bmatrix}^T$, we know that the product between circulant matrix and a vector ${\bf v}$ length of $N$ is equivalent to the circular convolution between vector ${\bf c}$ and ${\bf v}$, and the circular convolution can be computed efficiently via Fast Fourier transform (FFT). So we have
 \begin{equation}
-{\bf Cv} = {\bf F}_N^{-1} \left(  {\bf F}_N {\bf c} \circ {\bf F}_N {\bf v} \right)  =  {\bf F}_N^{-1} \left(  diag({\bf F}_N {\bf c}) {\bf F}_N {\bf v} \right) \,,
+{\bf Cv} = {\bf F}_N^{-1} \left(  {\bf F}_N {\bf c} \circ {\bf F}_N {\bf v} \right)  =  {\bf F}_N^{-1} \left(  diag({\bf F}_N {\bf c}) \cdot {\bf F}_N {\bf v} \right) \,,
 \end{equation}
 where the symbol $\circ$ and $diag$ represents Hardmard (element-wise) multiplication and building diagonal matrix from a vector.
 
@@ -212,7 +212,8 @@ c_9 & c_8 & c_7 & c_6 & c_5 \\
 \end{bmatrix}
 \label{eq12}
 \end{equation} 
-The vector ${\bf c}$ can be uniquely determined from the last column and last row. There are two way to embedding this Teoplitz matrix into a circular matrix, the first to embedding this matrix at the lower-left part of the circular matrix created by vector ${\bf c}$, which shows as below as
+The vector ${\bf c}$ can be uniquely determined from the last column and last row. 
+There are two way to embedding this Teoplitz matrix into a circular matrix, the first to embedding this matrix at the lower-left part of the circular matrix created by vector ${\bf c}$, which shows as below as
 \begin{center}
 \begin{tikzpicture}
   \matrix (m)[
@@ -233,7 +234,7 @@ c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\
 \draw (m-9-1.south west) rectangle (m-5-5.north east);
 \end{tikzpicture}
 \end{center}
-The above circulant matrix is called ${\bf C}_1$. We can also create a new vector $\hat{\bf c} = \begin{bmatrix} c_5 & c_6 & c_7 & c_8 & c_9 & c_1 & c_2 & c_3 & c_4 \end{bmatrix}^T$, which is obtained by permutating the elements of the original vector, the Toeplitz matrix can be embedded at the upper-left part of the circulant matrix created from $\hat{\bf c}$ shows as bellow
+The above circulant matrix is called ${\bf C}_1$. We can create a new vector $\hat{\bf c} = \begin{bmatrix} c_5 & c_6 & c_7 & c_8 & c_9 & c_1 & c_2 & c_3 & c_4 \end{bmatrix}^T$, which is obtained by permutating the elements of the original vector, the Toeplitz matrix can be embedded at the upper-left part of the circulant matrix created from $\hat{\bf c}$ shows as bellow
  \begin{center}
 \begin{tikzpicture}
   \matrix (m)[
@@ -261,7 +262,7 @@ Suppose we need to compute the product between Toeplitz matrix ${\bf T}$ and a v
 {\bf r} = {\bf T}{\bf v} \,
 \end{equation} 
 where the length of ${\bf v}$ is $K$.
-There are two way to do it efficiently via FFT, and these two ways corresponding to the two embedding methods. The first step is to padding vector ${\bf v}$ with $L-1$ $0s$ get a new vector $\hat{\bf v}$. Following above example, $K=L=5$ and ${\bf v} = \begin{bmatrix} v_1 & v_2 & v_3 & v_4 & v_5  \end{bmatrix}^T$, and the padded vector $\hat{\bf v} = \begin{bmatrix} v_1 & v_2 & v_3 & v_4 & v_5 & 0 & 0 & 0 & 0 \end{bmatrix}^T$, The product between ${\bf C}_1$ and $\hat{\bf v}$ are
+There are two way to do it efficiently via FFT, and these two ways corresponding to the two embedding methods. The first step is to padding vector ${\bf v}$ with $L-1$ $0$s get a new vector $\hat{\bf v}$. Following above example, $K=L=5$ and ${\bf v} = \begin{bmatrix} v_1 & v_2 & v_3 & v_4 & v_5  \end{bmatrix}^T$, and the padded vector $\hat{\bf v} = \begin{bmatrix} v_1 & v_2 & v_3 & v_4 & v_5 & 0 & 0 & 0 & 0 \end{bmatrix}^T$, The product between ${\bf C}_1$ and $\hat{\bf v}$ are
 \begin{equation}
 \hat{\bf r}_1 = {\bf C}_1 \hat{\bf v} = \begin{bmatrix}
 c_1 & c_9 & c_8 & c_7 & c_6 & c_5 &  c_4 & c_3 & c_2 \\ 
@@ -316,7 +317,7 @@ So the first $L$ elements of $\hat{\bf r}_2$ equal to ${\bf r}$. We summarize th
       \SetAlgoLined
       \Fn{ ${\bf v}= ttv({\bf c}, {\bf v}) $}{
       length of ${\bf c}$: $N = length({\bf c})$   \\
-      compute $L = \floor*{\frac{N}{2}}$, $K = N+1 - L$   \\
+      compute $L = \floor*{\frac{N}{2}}+1$, $K = N+1 - L$   \\
       padding $L-1$ $0$s to the end of ${\bf v}$ to get a new vector $\hat{\bf v}$ with length of $N$\\
       ${\bf r}_1 = {\bf F}_N^{-1} \left(   {\bf F}_N {\bf c} \circ {\bf F}_N  \hat{\bf v}\right) $ \\
       take the last $L$ elements from ${\bf r}_1$ 
@@ -329,16 +330,69 @@ Another method is summarized in Algorithm 2 as
       \SetAlgoLined
       \Fn{ ${\bf v}= ttv({\bf c}, {\bf v}) $}{
       length of ${\bf c}$: $N = length({\bf c})$   \\
-      compute $L = \floor*{\frac{N}{2}}$, $K = N+1 - L$   \\
+      compute $L = \floor*{\frac{N}{2}}+1$, $K = N+1 - L$   \\
       padding $L-1$ $0$s to the end of ${\bf v}$ to get a new vector $\hat{\bf v}$ with length of $N$\\
-      move the first $L-1$ element of ${\bf c}$ to the end, get a new vector $\hat{\bf c}$
+      move the first $K-1$ element of ${\bf c}$ to the end, get a new vector $\hat{\bf c}$
       ${\bf r}_2 = {\bf F}_N^{-1} \left(   {\bf F}_N \hat{\bf c} \circ {\bf F}_N  \hat{\bf v}\right) $ \\
       take the first $L$ elements from ${\bf r}_2$ 
       }
       \caption{Teoplitz-Times-Vector}
 \end{algorithm}
 
- 
+\subsection{Hankel matrix}
+Hankel matrix of size $L \times K$ created from the same vector ${\bf c}$ is given as
+\begin{equation}
+{\bf H} = 
+\begin{bmatrix}
+c_1 & c_2 & c_3 & c_4 & c_5 \\ 
+c_2 & c_3 & c_4 & c_5 & c_6 \\ 
+c_3 & c_4 & c_5 & c_6 & c_7 \\ 
+c_4 & c_5 & c_6 & c_7 & c_8 \\ 
+c_5 & c_6 & c_7 & c_8 & c_9 \\ 
+\end{bmatrix}
+\label{eq16}
+\end{equation}
+which can be determined from the first column and last row. 
+
+\textcolor{red}{Note: The circulant matrix and Teoplitz matrix are constant on the diagonals. However, Hankel matrix are constant on the anti-diagonals.}
+
+One can convert a Hankel matrix to a Toeplitz matrix by reversing its columns. The columns reversing process can be represented by right multiplying a $K \times k$ matrix ${\bf R}$, whose elements are $1$ on the main anti-diagonals and 0 elsewhere. Follow the toy example, we can get
+\begin{equation}
+{\bf T}= \begin{bmatrix}
+c_5 & c_4 & c_3 & c_2 & c_1 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 \\ 
+c_7 & c_6 & c_5 & c_4 & c_3 \\ 
+c_8 & c_7 & c_6 & c_5 & c_4 \\ 
+c_9 & c_8 & c_7 & c_6 & c_5 \\ 
+\end{bmatrix} = {\bf HR} = 
+\begin{bmatrix}
+c_1 & c_2 & c_3 & c_4 & c_5 \\ 
+c_2 & c_3 & c_4 & c_5 & c_6 \\ 
+c_3 & c_4 & c_5 & c_6 & c_7 \\ 
+c_4 & c_5 & c_6 & c_7 & c_8 \\ 
+c_5 & c_6 & c_7 & c_8 & c_9 \\ 
+\end{bmatrix}
+\begin{bmatrix}
+\quad & \quad &  \quad &  \quad & 1 \\
+\quad & \quad &  \quad &  1 & \quad \\
+\quad & \quad &  1 &  \quad & \quad \\
+\quad & 1 &  \quad &  \quad & \quad \\
+1 & \quad &  \quad &  \quad & \quad \\
+\end{bmatrix}
+\end{equation}
+
+Before we discuss about the multiplication between Hankel matrix and a vector, we first look at the property of the column reversing matrix ${\bf R}$, we have 
+\begin{equation}
+{\bf R} = {\bf R}^T = {\bf R}^{-1}
+\end{equation}
+So the product between Hankel matrix ${\bf H}$ and a vector ${\bf v}$ is given as 
+\begin{equation}
+{\bf r} = {\bf Hv} = {\bf HRR}^{-1}{\bf v} = {\bf HRRv} = ({\bf HR})({\bf Rv}) = {\bf T} \hat {\bf v}
+\end{equation}
+where $\bf{v}$ is the reversed version of the vector ${\bf v}$.
+
+
+
 \bibliographystyle{seg}
 \bibliography{paper}
 
