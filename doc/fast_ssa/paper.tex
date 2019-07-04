@@ -18,6 +18,7 @@
 \usepackage{booktabs}
  \usepackage{tikz}
  \usetikzlibrary{matrix}
+ \DeclareMathAlphabet\mathbfcal{OMS}{cmsy}{b}{n}
  
 \usepackage[ruled,linesnumbered]{algorithm2e}
 \SetKwProg{Fn}{Function}{}{}
@@ -109,6 +110,83 @@ As ${\bf F}_N$ is a orthogonal (but not orthonormal) matrix, we can be easily ge
 \label{eq6}
 \end{equation}
 where the super-script $^H$ represent complex conjugate transpose and $\ast$ indicate conjugate transpose. As the matrix ${\bf F}_N$ is a symmetrical matrix, that's why we can get equation \ref{eq6}.
+
+\subsection{Properties of Fourier transform}
+
+In this section, we review the properties of discrete Fourier transform ({\bf DFT}), most of the properties are derived in continuous domain as it is much easier for the derivation, but the discrete version are verified by $Julia$ code.
+
+We define the Fourier transform as
+\begin{equation}
+X(\omega) = \int_{-\infty}^{\infty} x(t) e^{-i\omega t} dt
+\end{equation}
+where $\omega$ is radian frequency and $t$ is time. The above operation can be simplified as 
+\begin{equation}
+{\mathbfcal F}[x(t)] \rightarrow X(\omega)
+\end{equation}
+
+\subsubsection{1. time shift}
+\begin{equation}
+{\mathbfcal F}[x(t-t_0)] = X(\omega)e^{i \omega t_0}
+\end{equation}
+
+{\bf Proof}:
+$$
+{\mathbfcal F}[x(t-t_0)]  = \int_{-\infty}^{\infty} x(t - t_0) e^{-i\omega t} dt  
+$$
+we set $t^{\prime} = t - t_0$ and exchange the variables, we can get
+$$
+{\mathbfcal F}[x(t-t_0)]  = \int_{-\infty}^{\infty} x(t^{\prime}) e^{-i\omega (t^{\prime} + t_0)} d t^{\prime}  $$
+$$
+{\mathbfcal F}[x(t-t_0)] = e^{i \omega t_0} \int_{-\infty}^{\infty} x(t^{\prime}) e^{-i\omega t^{\prime}} d t^{\prime} = X(\omega) e^{i \omega t_0}
+$$
+
+\subsubsection{2. frequency modulation}
+\begin{equation}
+{\mathbfcal F}[x(t)e^{i \omega_0 t}] = X(\omega-\omega_0)
+\end{equation}
+{\bf Proof}:
+$$
+{\mathbfcal F}[x(t)e^{i \omega_0 t}]  = \int_{-\infty}^{\infty} x(t)e^{i \omega_0 t} e^{-i\omega t} dt  \\
+=  \int_{-\infty}^{\infty} x(t) e^{-i (\omega-\omega_0) t} dt  =  X(\omega-\omega_0)
+$$
+\textcolor{red}{Note: this is the property we forget very often.}
+
+\subsubsection{3. time reversal}
+\begin{equation}
+{\mathbfcal F}[x(-t)] = X(-\omega)
+\end{equation}
+{\bf Proof}:
+$$ {\mathbfcal F}[x(-t)]  = \int_{-\infty}^{\infty} x(-t)e^{-i \omega t} dt  $$
+Set $t^{\prime} = -t$ and change the variables we can get
+$$ {\mathbfcal F}[x(-t)]  = \int_{\infty}^{-\infty} x(t^{\prime}) e^{-i \omega (-t^{\prime})} d (-t^{\prime}) \\
+= \int_{-\infty}^{\infty} x(t^{\prime}) e^{-i (-\omega) t^{\prime}} d t^{\prime} \\
+= X(-\omega)$$
+Based on this property, we can get two extensions, if the time function is and even function, that is
+$$x(t) = x(-t) \rightarrow X(\omega) = X(-\omega)$$
+if the time function is odd function, the Fourier transform of this function is also an odd function
+$$x(t) = -x(-t) \rightarrow X(\omega) = - X(-\omega)$$
+
+\subsubsection{4. time and frequency stretching}
+\begin{equation}
+{\mathbfcal F}[x(at)] = \frac{1}{a}X(\frac{\omega}{a})
+\end{equation}
+where $a$ is positive number
+
+{\bf Proof}:
+$$ {\mathbfcal F}[x(at)]  = \int_{-\infty}^{\infty} x(at)e^{-i \omega t} dt  $$
+Set $t^{\prime} = a t$, By change the variable, we can get
+$$ {\mathbfcal F}[x(at)]  = \int_{-\infty}^{\infty} x(t^{\prime})e^{-i \omega \frac{t^{\prime}}{a}} d\frac{t^{\prime}}{a} = \frac{1}{a}  \int_{-\infty}^{\infty} x(t^{\prime}) e^{-i \frac{\omega}{a} t^{\prime}} d t^{\prime} = \frac{1}{a}X{(\frac{w}{a})} $$
+\textcolor{red}{Stretching in one domain means squeezing in another domain and vis versa.}
+
+\subsubsection{5. Complex conjugate}
+\begin{equation}
+{\mathbfcal F}[x^*(t)] = X^*(- \omega)
+\end{equation}
+where the super-script $^*$ represent complex conjugate.
+
+{\bf Proof}:
+$$\int_{-\infty}^{\infty}  x^*(t) e^{-i \omega t} dt = \int_{-\infty}^{\infty} \left( x(t) e^{i \omega t}\right)^* dt = \int_{-\infty}^{\infty} \left(x(t) e^{-i (-\omega) t}\right)^* dt = \left( \int_{-\infty}^{\infty} x(t) e^{-i (-\omega) t} dt\right)^* = X^*(-\omega)  $$
+
 
 \subsection{Circulant matrix}
 An $9 \times 9$ circulant matrix is defined as
@@ -315,7 +393,7 @@ v_5 \\
 So the first $L$ elements of $\hat{\bf r}_2$ equal to ${\bf r}$. We summarize the efficient computation of the product between Toeplitz matrix and a vector in Algorithm 1 and Algorithm 2
 \begin{algorithm}
       \SetAlgoLined
-      \Fn{ ${\bf v}= ttv({\bf c}, {\bf v}) $}{
+      \Fn{ ${\bf r}= ttv({\bf c}, {\bf v}) $}{
       length of ${\bf c}$: $N = length({\bf c})$   \\
       compute $L = \floor*{\frac{N}{2}}+1$, $K = N+1 - L$   \\
       padding $L-1$ $0$s to the end of ${\bf v}$ to get a new vector $\hat{\bf v}$ with length of $N$\\
@@ -328,7 +406,7 @@ So the first $L$ elements of $\hat{\bf r}_2$ equal to ${\bf r}$. We summarize th
 Another method is summarized in Algorithm 2 as 
 \begin{algorithm}
       \SetAlgoLined
-      \Fn{ ${\bf v}= ttv({\bf c}, {\bf v}) $}{
+      \Fn{ ${\bf r}= ttv({\bf c}, {\bf v}) $}{
       length of ${\bf c}$: $N = length({\bf c})$   \\
       compute $L = \floor*{\frac{N}{2}}+1$, $K = N+1 - L$   \\
       padding $L-1$ $0$s to the end of ${\bf v}$ to get a new vector $\hat{\bf v}$ with length of $N$\\
@@ -356,7 +434,7 @@ which can be determined from the first column and last row.
 
 \textcolor{red}{Note: The circulant matrix and Teoplitz matrix are constant on the diagonals. However, Hankel matrix are constant on the anti-diagonals.}
 
-One can convert a Hankel matrix to a Toeplitz matrix by reversing its columns. The columns reversing process can be represented by right multiplying a $K \times k$ matrix ${\bf R}$, whose elements are $1$ on the main anti-diagonals and 0 elsewhere. Follow the toy example, we can get
+One can convert a Hankel matrix to a Toeplitz matrix by reversing its columns. The columns reversing process can be represented by right multiplying a $K \times K$ matrix ${\bf R}$, whose elements are $1$ on the main anti-diagonals and 0 elsewhere. Follow the toy example, we can get
 \begin{equation}
 {\bf T}= \begin{bmatrix}
 c_5 & c_4 & c_3 & c_2 & c_1 \\ 
@@ -389,7 +467,17 @@ So the product between Hankel matrix ${\bf H}$ and a vector ${\bf v}$ is given a
 \begin{equation}
 {\bf r} = {\bf Hv} = {\bf HRR}^{-1}{\bf v} = {\bf HRRv} = ({\bf HR})({\bf Rv}) = {\bf T} \hat {\bf v}
 \end{equation}
-where $\bf{v}$ is the reversed version of the vector ${\bf v}$.
+where $\bf{v}$ is the reversed version of the vector ${\bf v}$. From above derivations, we can see that the multiplication between a Hankel matrix and a vector is converted to the multiplication between Teoplitz matrix and a vector. So the algorithm for the multiplication between Hankel matrix and a vector is summarized in Algorithm 3 as
+\begin{algorithm}
+      \SetAlgoLined
+      \Fn{ ${\bf r}= htv({\bf c}, {\bf v}) $}{
+      length of ${\bf c}$: $N = length({\bf c})$   \\
+      compute $L = \floor*{\frac{N}{2}}+1$, $K = N+1 - L$   \\
+      reverse the order of the elements of ${\bf v}$: $\hat{\bf v} = reverse({\bf v})$ \\
+      call the function Toeplitz-times-vector: ${\bf r} = ttv({\bf c}, \hat{\bf v})$ \\
+      \Return {\bf r}}
+      \caption{Hankel-Times-Vector}
+\end{algorithm}
 
 
 

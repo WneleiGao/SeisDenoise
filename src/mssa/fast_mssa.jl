@@ -142,7 +142,7 @@ function hankel_times_vector(c::Vector{Tv}, v::Vector{Tv}; embed_flag=1) where {
     # reverse the order of the elements of v
     v_hat = Vector{Tv}(undef, K)
     for i = 1 : K
-        v_hat[i] = v[N-i+1]
+        v_hat[i] = v[K-i+1]
     end
 
     return toeplitz_times_vector(c, v_hat; embed_flag=embed_flag)
@@ -167,3 +167,15 @@ end
 # T  = build_toeplitz_matrix(c);
 # r1 = T * v;
 # norm(r-r1) / norm(r)
+
+
+
+# test Hankel matrix times a vector
+L = 51; K = 51;
+N = L+K-1;
+c = randn(N); v = randn(K);
+r = hankel_times_vector(c, v; embed_flag=2);
+
+H  = build_hankel_matrix(c);
+r1 = H * v;
+norm(r-r1) / norm(r)

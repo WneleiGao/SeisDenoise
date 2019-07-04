@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  28 JUN 2019 15:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  3 JUL 2019 18:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -684,21 +684,27 @@ LaTeX Info: Thecontrolsequence`\]'isalreadyrobust on input line 129.
 \l_MT_above_shortintertext_sep=\dimen273
 \l_MT_below_shortintertext_sep=\dimen274
 )
+LaTeX Font Info:    Redeclaring math alphabet \mathbfcal on input line 35.
+LaTeX Font Info:    Overwriting math alphabet `\mathbfcal' in version `normal'
+(Font)                  OMS/cmsy/b/n --> OMS/cmsy/b/n on input line 35.
+LaTeX Font Info:    Overwriting math alphabet `\mathbfcal' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/cmsy/b/n on input line 35.
+
 (./paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 37.
-LaTeX Font Info:    ... okay on input line 37.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 38.
+LaTeX Font Info:    ... okay on input line 38.
 
 (/usr/local/texlive/2016/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -714,21 +720,21 @@ LaTeX Font Info:    ... okay on input line 37.
 \makeMPintoPDFobject=\count159
 \everyMPtoPDFconversion=\toks41
 )
-LaTeX Font Info:    Try loading font information for U+rsfs on input line 37.
+LaTeX Font Info:    Try loading font information for U+rsfs on input line 38.
  (/usr/local/texlive/2016/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
-LaTeX Font Info:    Try loading font information for U+msa on input line 37.
+LaTeX Font Info:    Try loading font information for U+msa on input line 38.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 37.
+LaTeX Font Info:    Try loading font information for U+msb on input line 38.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Package xypdf Info: Line width: 0.43799pt on input line 37.
+Package xypdf Info: Line width: 0.43799pt on input line 38.
 
 (/usr/local/texlive/2016/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2016/05/10 v0.21 Utility functions of pdfTeX for LuaTeX (HO
@@ -774,48 +780,58 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 ABD: EveryShipout initializing macros
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 55.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 56.
 
 (/usr/local/texlive/2016/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <8> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 55.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 56.
  [1
 
-{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Overfull \hbox (22.9549pt too wide) in paragraph at lines 128--131
+{/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
+Overfull \hbox (48.01541pt too wide) detected at line 188
+[][] \OML/cmm/m/it/10.95 x[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 t\OT1/cmr/m
+/n/10.95 )\OML/cmm/m/it/10.95 e[]dt \OT1/cmr/m/n/10.95 = [][] [][] \OML/cmm/m/i
+t/10.95 dt \OT1/cmr/m/n/10.95 = [][] [][] \OML/cmm/m/it/10.95 dt \OT1/cmr/m/n/1
+0.95 = [][] = \OML/cmm/m/it/10.95 X[]\OT1/cmr/m/n/10.95 (\OMS/cmsy/m/n/10.95 ^^
+@\OML/cmm/m/it/10.95 !\OT1/cmr/m/n/10.95 )
+ []
+
+[3]
+Overfull \hbox (22.9549pt too wide) in paragraph at lines 206--209
 \OT1/cmr/m/n/10.95 A cir-cu-lant ma-trix is fully spec-i-fied by its first col-
 umn $\OT1/cmr/bx/n/10.95 c \OT1/cmr/m/n/10.95 = [][]$,
  []
 
-[2]
-Overfull \hbox (32.23477pt too wide) in paragraph at lines 197--199
+[4]
+Overfull \hbox (32.23477pt too wide) in paragraph at lines 275--277
 []\OT1/cmr/m/n/10.95 Let's con-sider an-other Toeplitz ma-trix built from a vec
 -tor $\OT1/cmr/bx/n/10.95 c \OT1/cmr/m/n/10.95 = []$
  []
 
-[3]
-Overfull \hbox (89.77634pt too wide) in paragraph at lines 237--238
+
+Overfull \hbox (89.77634pt too wide) in paragraph at lines 315--316
 \OT1/cmr/m/n/10.95 The above cir-cu-lant ma-trix is called $\OT1/cmr/bx/n/10.95
  C[]$\OT1/cmr/m/n/10.95 . We can cre-ate a new vec-tor $[] = [][]$,
  []
 
-[4] [5] (./paper.bbl) AED endfloat: Processing end Figures and Tables [6]
-(./paper.aux) )
+[5] [6] [7] (./paper.bbl) AED endfloat: Processing end Figures and Tables
+[8] (./paper.aux) )
 (\end occurred inside a group at level 1)
 
 ### simple group (level 1) entered at line 1061 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 16997 strings out of 493014
- 314385 string characters out of 6133351
- 442660 words of memory out of 5000000
- 20195 multiletter control sequences out of 15000+600000
- 11948 words of font info for 48 fonts, out of 8000000 for 9000
+ 17003 strings out of 493014
+ 314450 string characters out of 6133351
+ 439759 words of memory out of 5000000
+ 20198 multiletter control sequences out of 15000+600000
+ 12716 words of font info for 51 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,16n,70p,838b,3273s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,16n,70p,838b,3265s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbsy10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts
 /cm/cmbx10.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmbx12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/c
 m/cmbx8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/
@@ -826,13 +842,14 @@ mi6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi
 pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb
 ></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></
 usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></u
-sr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr
-/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/
-local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on paper.pdf (6 pages, 161828 bytes).
+sr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr
+/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/l
+ocal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/lo
+cal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on paper.pdf (8 pages, 191512 bytes).
 PDF statistics:
- 82 PDF objects out of 1000 (max. 8388607)
- 59 compressed objects within 1 object stream
+ 98 PDF objects out of 1000 (max. 8388607)
+ 71 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
