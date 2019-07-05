@@ -418,48 +418,82 @@ Another method is summarized in Algorithm 2 as
 \end{algorithm}
 
 \subsection{Hankel matrix}
-Hankel matrix of size $L \times K$ created from the same vector ${\bf c}$ is given as
+We divide Hankel matrices into two classes, one is the number of elements is even and the other one is odd. We first discuss about when the number of elements is even, for example $N=6$. The vector can be expressed as
+$${\bf c} = \begin{bmatrix}
+c_1\\
+c_2\\
+c_3\\
+c_4\\
+c_5\\
+c_6\\
+\end{bmatrix}$$ 
+We follow the $L = \floor*{\frac{N}{2}}+1 = 4$ and $K = N+1-L = 3$ to determine the number of rows and columns of the result Hankel matrix as
 \begin{equation}
 {\bf H} = 
 \begin{bmatrix}
-c_1 & c_2 & c_3 & c_4 & c_5 \\ 
-c_2 & c_3 & c_4 & c_5 & c_6 \\ 
-c_3 & c_4 & c_5 & c_6 & c_7 \\ 
-c_4 & c_5 & c_6 & c_7 & c_8 \\ 
-c_5 & c_6 & c_7 & c_8 & c_9 \\ 
+c_1 & c_2 & c_3 \\ 
+c_2 & c_3 & c_4 \\ 
+c_3 & c_4 & c_5 \\ 
+c_4 & c_5 & c_6 \\ 
 \end{bmatrix}
-\label{eq16}
+\label{eq23}
 \end{equation}
-which can be determined from the first column and last row. 
+We also give the Hermitian transpose (complex-conjugate transpose) of the Hankel matrix as
+\begin{equation}
+{\bf H}^H = 
+\begin{bmatrix}
+c_1^*  & c_2^*  & c_3^*  & c_4^*  \\ 
+c_2^*  & c_3^*  & c_4^*  & c_5^*  \\ 
+c_3^*  & c_4^*  & c_5^*  & c_6^*  \\ 
+\end{bmatrix}
+\label{eq24}
+\end{equation}
+where the super-script indicate Hermitian transpose.
+We can see that the Hermitian transpose of Hankel matrix is still an Hankel matrix. The vector elements can be determined from the first column and last row. 
 
 \textcolor{red}{Note: The circulant matrix and Teoplitz matrix are constant on the diagonals. However, Hankel matrix are constant on the anti-diagonals.}
 
-One can convert a Hankel matrix to a Toeplitz matrix by reversing its columns. The columns reversing process can be represented by right multiplying a $K \times K$ matrix ${\bf R}$, whose elements are $1$ on the main anti-diagonals and 0 elsewhere. Follow the toy example, we can get
+One can convert a Hankel matrix to a Toeplitz matrix by reversing its columns. The columns reversing process can be represented by right multiplying a $K \times K$ matrix ${\bf R}$, whose elements are $1$ on the main anti-diagonals and 0 elsewhere. Which given as
 \begin{equation}
 {\bf T}= \begin{bmatrix}
-c_5 & c_4 & c_3 & c_2 & c_1 \\ 
-c_6 & c_5 & c_4 & c_3 & c_2 \\ 
-c_7 & c_6 & c_5 & c_4 & c_3 \\ 
-c_8 & c_7 & c_6 & c_5 & c_4 \\ 
-c_9 & c_8 & c_7 & c_6 & c_5 \\ 
+c_3 & c_2 & c_1 \\ 
+c_4 & c_3 & c_2 \\ 
+c_5 & c_4 & c_3 \\ 
+c_6 & c_5 & c_4 \\ 
 \end{bmatrix} = {\bf HR} = 
 \begin{bmatrix}
-c_1 & c_2 & c_3 & c_4 & c_5 \\ 
-c_2 & c_3 & c_4 & c_5 & c_6 \\ 
-c_3 & c_4 & c_5 & c_6 & c_7 \\ 
-c_4 & c_5 & c_6 & c_7 & c_8 \\ 
-c_5 & c_6 & c_7 & c_8 & c_9 \\ 
+c_1 & c_2 & c_3  \\ 
+c_2 & c_3 & c_4  \\ 
+c_3 & c_4 & c_5  \\ 
+c_4 & c_5 & c_6  \\ 
 \end{bmatrix}
 \begin{bmatrix}
-\quad & \quad &  \quad &  \quad & 1 \\
-\quad & \quad &  \quad &  1 & \quad \\
-\quad & \quad &  1 &  \quad & \quad \\
-\quad & 1 &  \quad &  \quad & \quad \\
-1 & \quad &  \quad &  \quad & \quad \\
+\quad &  \quad & 1 \\
+\quad &  1 & \quad \\
+1 &  \quad & \quad \\
+\end{bmatrix}
+\end{equation}
+The columns reverse of the Hermitian transpose of Hankel matrix is also a Toeplitz matrix given as 
+\begin{equation}
+\hat{\bf T}= \begin{bmatrix}
+c_4^* & c_3^* & c_2^* & c_1^* \\ 
+c_5^* & c_4^* & c_3^* & c_2^* \\ 
+c_6^* & c_5^* & c_4^* & c_3^* \\ 
+\end{bmatrix} = {\bf H}^H{\bf R} = 
+\begin{bmatrix}
+c_1^*  & c_2^*  & c_3^*  & c_4^*  \\ 
+c_2^*  & c_3^*  & c_4^*  & c_5^*  \\ 
+c_3^*  & c_4^*  & c_5^*  & c_6^*  \\ 
+\end{bmatrix}
+\begin{bmatrix}
+\quad & \quad &  \quad & 1 \\
+\quad & \quad &  1 & \quad \\
+\quad & 1        &  \quad & \quad \\
+1        & \quad &  \quad & \quad \\
 \end{bmatrix}
 \end{equation}
 
-Before we discuss about the multiplication between Hankel matrix and a vector, we first look at the property of the column reversing matrix ${\bf R}$, we have 
+Before we discuss about the multiplication between Hankel matrix or the Hermitian transpose and a vector, we first look at the property of the column reversing matrix ${\bf R}$, we have 
 \begin{equation}
 {\bf R} = {\bf R}^T = {\bf R}^{-1}
 \end{equation}
@@ -467,17 +501,76 @@ So the product between Hankel matrix ${\bf H}$ and a vector ${\bf v}$ is given a
 \begin{equation}
 {\bf r} = {\bf Hv} = {\bf HRR}^{-1}{\bf v} = {\bf HRRv} = ({\bf HR})({\bf Rv}) = {\bf T} \hat {\bf v}
 \end{equation}
-where $\bf{v}$ is the reversed version of the vector ${\bf v}$. From above derivations, we can see that the multiplication between a Hankel matrix and a vector is converted to the multiplication between Teoplitz matrix and a vector. So the algorithm for the multiplication between Hankel matrix and a vector is summarized in Algorithm 3 as
+where $\bf{v}$ is the reversed version of the vector ${\bf v}$. Accordingly, the Hermitian transpose of Hankel matrix times a vector can be represented as
+\begin{equation}
+\hat{\bf r} = {\bf H}^H{v} = {\bf H}^H {\bf RR}^{-1}{\bf v} = {\bf H}^H{\bf RRv} = ({\bf H}^H{\bf R})({\bf Rv}) = \hat{\bf T} \hat {\bf v}
+\end{equation}
+There are two ways to embed ${\bf HR}$ and ${\bf H}^H {\bf R}$ into a circulant matrix, which is given as
+\begin{center}
+\begin{tikzpicture}
+  \matrix (m)[
+    matrix of math nodes,
+    nodes in empty cells,
+    minimum width=width("123"),
+  ] {
+c_1 & c_6 & c_5 & c_4 & c_3 & c_2 \\ 
+c_2 & c_1 & c_6 & c_5 & c_4 & c_3 \\ 
+c_3 & c_2 & c_1 & c_6 & c_5 & c_4 \\ 
+c_4 & c_3 & c_2 & c_1 & c_6 & c_5 \\ 
+c_5 & c_4 & c_3 & c_2 & c_1 & c_6 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 & c_1 \\ 
+} ;
+\draw (m-6-1.south west) rectangle (m-3-3.north east);
+\draw (m-6-1.south west) rectangle (m-4-4.north east);
+\end{tikzpicture}
+\end{center}
+The second way to embed a Hankel matrix into a circulant matrix is given as
+\begin{center}
+\begin{tikzpicture}
+  \matrix (m)[
+    matrix of math nodes,
+    nodes in empty cells,
+    minimum width=width("123"),
+  ] {
+c_3 & c_2 & c_1 & c_6 & c_5 & c_4 \\ 
+c_4 & c_3 & c_2 & c_1 & c_6 & c_5 \\ 
+c_5 & c_4 & c_3 & c_2 & c_1 & c_6 \\ 
+c_6 & c_5 & c_4 & c_3 & c_2 & c_1 \\ 
+c_1 & c_6 & c_5 & c_4 & c_3 & c_2 \\ 
+c_2 & c_1 & c_6 & c_5 & c_4 & c_3 \\ 
+} ;
+\draw (m-4-1.south west) rectangle (m-1-3.north east);
+\draw (m-6-3.south west) rectangle (m-4-6.north east);
+\end{tikzpicture}
+\end{center}
+
+Based on the two different embedding methods, we also have two algorithm to compute the product between Hankel matrix or Hermitian transpose and a vector,  which is given as
 \begin{algorithm}
       \SetAlgoLined
-      \Fn{ ${\bf r}= htv({\bf c}, {\bf v}) $}{
+      \Fn{ ${\bf r}= htv({\bf c}, {\bf v}; flag="forward" \,\,or\,\,"adjoint") $}{
       length of ${\bf c}$: $N = length({\bf c})$   \\
       compute $L = \floor*{\frac{N}{2}}+1$, $K = N+1 - L$   \\
       reverse the order of the elements of ${\bf v}$: $\hat{\bf v} = reverse({\bf v})$ \\
-      call the function Toeplitz-times-vector: ${\bf r} = ttv({\bf c}, \hat{\bf v})$ \\
-      \Return {\bf r}}
+      Fourier transform: $\hat{\bf c} = fft({\bf c})$ \\
+      \If{ Forward}{
+      Padding zeros to $\hat{\bf v}$:  $\hat{\bf v} = [\hat{\bf v}, zeros(L-1)]$     \\
+      Fourier transform: $\tilde{\bf v}  = fft(\hat{\bf v})$ \\
+      element-wise multiplication: ${\bf r} = ifft(\hat{\bf c} \circ \tilde{\bf v})$ \\
+      \Return ${\bf r}[K:N]$}
+      \If{ Adjoint }{
+      Padding zeros to $\hat{\bf v}$:  $\hat{\bf v} = [\hat{\bf v}, zeros(K-1)]$     \\
+      Fourier transform: $\tilde{\bf v}  = fft(\hat{\bf v})$ \\
+      Conjugate property of Fourier transform: $\tilde{\bf c}[1] = \hat{\bf c}^*[1]$ and  $\tilde{\bf c}[i] = \hat{\bf c}^*[N-i+2] $ \\
+      element-wise multiplication: ${\bf r} = ifft(\tilde{\bf c} \circ \tilde{\bf v})$ \\
+      \Return ${\bf r}[L:N]$}}
       \caption{Hankel-Times-Vector}
 \end{algorithm}
+\textcolor{red}{The expression in Line 15 use the conjugate property of Fourier transform, which is stated as}
+$$
+\mathbfcal{F}[x(t)] \rightarrow X(\omega)$$
+$$
+\mathbfcal{F}[x^*(t)] \rightarrow X^*(-\omega)
+$$
 
 
 
