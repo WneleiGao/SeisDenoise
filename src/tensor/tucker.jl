@@ -196,6 +196,61 @@ function local_tucker_als(cube::Array{Tv,3}, rk::Union{Vector{Ti},Ti}, work_dir:
      return s
 end
 
+### 4D tensor decomposition
+function local_tucker_als(cube::Array{Tv,4}, rk::Union{Vector{Ti},Ti}, work_dir::String;
+                          tol=1e-6, max_iter=10, init_flag="eigvec",
+                          it_wl = 30, it_wo = 10, x1_wl = 30, x1_wo = 10, x2_wl = 30, x2_wo = 10, x3_wl = 30, x3_wo = 10) where {Tv<:AbstractFloat, Ti<:Int64}
+
+     # divide the cube into patches
+     vec_dir = patch4d(work_dir, cube, it_wl, it_wo, x1_wl, x1_wo, x2_wl, x2_wo, x3_wl, x3_wo);
+
+     # pack arguments into a Dictionary
+     num_patches = length(vec_dir)
+     params = Vector{Dict}(undef, num_patches)
+     for i = 1 : num_patches
+         params[i] = Dict(:path=>vec_dir[i], :rk=>rk, :tol=>tol, :max_iter=>max_iter, :init_flag=>init_flag)
+     end
+
+     # wrap_fxy_prediction
+     function wrap_tucker_als(params::Dict)
+
+         # read one patch
+         (d, nt, n1, n2, n3, itl, itu, x1l, x1u, x2l, x2u, x3l, x3u, it_wo, x1_wo, x2_wo, x3_wo, code) = read_one_patch4d(params[:path], return_flag=true)
+
+         # denoising
+         s = tucker_als(Tensor(d), params[:rk]; tol=params[:tol], max_iter=params[:max_iter], init_flag=params[:init_flag])
+         s = tucker2tensor(s)
+
+         # write the result back
+         fid = open(params[:path], "r+")
+         pos = sizeof(Int64) * 17
+         seek(fid, pos)
+
+         if code == 1
+            write(fid, convert(Vector{Float64}, vec(s.d)))
+         elseif code == 2
+            write(fid, convert(Vector{Float32}, vec(s.d)))
+         end
+         close(fid)
+
+         return nothing
+     end
+
+     # apply fxy_prediction to each patch
+     pmap(wrap_tucker_als, params)
+
+     # taper the boundary of each patch
+     par_taper4d(vec_dir)
+
+     # merge patches
+     s = unpatch4d(vec_dir)
+
+     # remove the patches
+     pmap(rm, vec_dir)
+
+     return s
+end
+
 # c  = randn(3,4,5);
 # rk = collect(size(c));
 # u  = Vector{Matrix{Float64}}(undef, 3)

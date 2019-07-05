@@ -4,6 +4,11 @@ export get_patches_dir,
        taper_one_patch,
        par_taper,
        unpatch,
+       patch4d,
+       read_one_patch4d,
+       taper_one_patch4d,
+       par_taper4d,
+       unpatch4d,
        get_spatial_patches_dir,
        spatial_patch,
        read_one_spatial_patch,
@@ -12,4 +17,5 @@ export get_patches_dir,
        spatial_unpatch
 
 include("windowing.jl")
+include("windowing4d.jl")
 include("spatial_window.jl")
