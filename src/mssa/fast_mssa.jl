@@ -468,6 +468,321 @@ end
 
 
 # Hankel matrix or its Hermitian transpose times a vector
+function hankel_multiplication(d::Array{Tv}, v::Array{Tv}; flag="forward") where {Tv<:Number}
+
+    # dimensions of array
+    dims = size(d)
+    N    = length(dims)
+
+    # Fourier transform of d
+    d_hat = fft(d)
+
+    if N == 1
+       # compute L, K
+       L1 = floor(Int64,dims[1]/2)+1; K1 = dims[1]-L1+1
+
+       if flag == "forward"
+
+          # check the size of v
+          size(v, 1) == K1 ||  DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1])
+          v_hat = fft(v_hat)
+
+          # element-wise multiplication
+          r = ifft(d_hat .* v_hat)
+
+          # return the last L1 element
+          return r[K1:dims[1]]
+
+       elseif flag == "adjoint"
+
+          # check the size of v
+          size(v, 1) == L1 ||  DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1])
+          v_hat = fft(v_hat)
+
+          # conjugate property
+          d_tilde = copy(d_hat)
+          for i1 = 1 : dims[1]
+              j1 = i1 == 1 ? 1 : dims[1]-i1+2
+
+              d_tilde[i1] = conj(d_hat[j1])
+          end
+
+          # element-wise multiplication
+          r = ifft(d_tilde .* v_hat)
+
+          # return the last K1 element
+          return r[L1:dims[1]]
+
+       else
+          error("non-surpported operation")
+       end
+
+
+    elseif N == 2
+       # compute L, K
+       L1 = floor(Int64,dims[1]/2)+1; K1 = dims[1]-L1+1
+       L2 = floor(Int64,dims[2]/2)+1; K2 = dims[2]-L2+1
+
+       if flag == "forward"
+
+          # check the size of v
+          size(v, 1) == K1 || DimensionMismatch()
+          size(v, 2) == K2 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2])
+          v_hat = fft(v_hat)
+
+          # element-wise multiplication
+          r = ifft(d_hat .* v_hat)
+
+          # return the last L1 element
+          return r[K1:dims[1],K2:dims[2]]
+
+       elseif flag == "adjoint"
+
+          # check the size of v
+          size(v, 1) == L1 || DimensionMismatch()
+          size(v, 2) == L2 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2])
+          v_hat = fft(v_hat)
+
+          # conjugate property
+          d_tilde = copy(d_hat)
+          for i2 = 1 : dims[2]
+              j2 = i2 == 1 ? 1 : dims[2]-i2+2
+
+              for i1 = 1 : dims[1]
+                  j1 = i1 == 1 ? 1 : dims[1]-i1+2
+
+                  d_tilde[i1,i2,i3,i4,i5] = conj(d_hat[j1,j2,j3,j4,j5])
+              end
+          end
+
+          # element-wise multiplication
+          r = ifft(d_tilde .* v_hat)
+
+          # return the last K1 element
+          return r[L1:dims[1], L2:dims[2]]
+
+       else
+          error("non-surpported operation")
+       end
+
+
+    elseif N == 3
+       # compute L, K
+       L1 = floor(Int64,dims[1]/2)+1; K1 = dims[1]-L1+1
+       L2 = floor(Int64,dims[2]/2)+1; K2 = dims[2]-L2+1
+       L3 = floor(Int64,dims[3]/2)+1; K3 = dims[3]-L3+1
+
+       if flag == "forward"
+
+          # check the size of v
+          size(v, 1) == K1 || DimensionMismatch()
+          size(v, 2) == K2 || DimensionMismatch()
+          size(v, 3) == K3 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2], n3=dims[3])
+          v_hat = fft(v_hat)
+
+          # element-wise multiplication
+          r = ifft(d_hat .* v_hat)
+
+          # return the last L1 element
+          return r[K1:dims[1],K2:dims[2],K3:dims[3]]
+
+       elseif flag == "adjoint"
+
+          # check the size of v
+          size(v, 1) == L1 || DimensionMismatch()
+          size(v, 2) == L2 || DimensionMismatch()
+          size(v, 3) == L3 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2], n3=dims[3])
+          v_hat = fft(v_hat)
+
+          # conjugate property
+          d_tilde = copy(d_hat)
+          for i3 = 1 : dims[1]
+              j3 = i3 == 1 ? 1 : dims[3]-i3+2
+
+              for i2 = 1 : dims[2]
+                  j2 = i2 == 1 ? 1 : dims[2]-i2+2
+
+                  for i1 = 1 : dims[1]
+                      j1 = i1 == 1 ? 1 : dims[1]-i1+2
+
+                      d_tilde[i1,i2,i3] = conj(d_hat[j1,j2,j3])
+                  end
+              end
+          end
+
+          # element-wise multiplication
+          r = ifft(d_tilde .* v_hat)
+
+          # return the last K1 element
+          return r[L1:dims[1],L2:dims[2],L3:dims[3]]
+
+       else
+          error("non-surpported operation")
+       end
+
+
+    elseif N == 4
+       # compute L, K
+       L1 = floor(Int64,dims[1]/2)+1; K1 = dims[1]-L1+1
+       L2 = floor(Int64,dims[2]/2)+1; K2 = dims[2]-L2+1
+       L3 = floor(Int64,dims[3]/2)+1; K3 = dims[3]-L3+1
+       L4 = floor(Int64,dims[4]/2)+1; K4 = dims[4]-L4+1
+
+       if flag == "forward"
+
+          # check the size of v
+          size(v, 1) == K1 || DimensionMismatch()
+          size(v, 2) == K2 || DimensionMismatch()
+          size(v, 3) == K3 || DimensionMismatch()
+          size(v, 4) == K4 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2], n3=dims[3], n4=dims[4])
+          v_hat = fft(v_hat)
+
+          # element-wise multiplication
+          r = ifft(d_hat .* v_hat)
+
+          # return the last L1 element
+          return r[K1:dims[1],K2:dims[2],K3:dims[3],K4:dims[4]]
+
+       elseif flag == "adjoint"
+
+          # check the size of v
+          size(v, 1) == L1 || DimensionMismatch()
+          size(v, 2) == L2 || DimensionMismatch()
+          size(v, 3) == L3 || DimensionMismatch()
+          size(v, 4) == L4 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2], n3=dims[3], n4=dims[4])
+          v_hat = fft(v_hat)
+
+          # conjugate property
+          d_tilde = copy(d_hat)
+          for i4 = 1 : dims[4]
+              j4 = i4 == 1 ? 1 : dims[4]-i4+2
+
+              for i3 = 1 : dims[1]
+                  j3 = i3 == 1 ? 1 : dims[3]-i3+2
+
+                  for i2 = 1 : dims[2]
+                      j2 = i2 == 1 ? 1 : dims[2]-i2+2
+
+                      for i1 = 1 : dims[1]
+                          j1 = i1 == 1 ? 1 : dims[1]-i1+2
+
+                          d_tilde[i1,i2,i3,i4] = conj(d_hat[j1,j2,j3,j4])
+                      end
+                  end
+              end
+          end
+
+          # element-wise multiplication
+          r = ifft(d_tilde .* v_hat)
+
+          # return the last K1 element
+          return r[L1:dims[1],L2:dims[2],L3:dims[3],L4:dims[4]]
+
+       else
+          error("non-surpported operation")
+       end
+
+
+    elseif N == 5
+       # compute L, K
+       L1 = floor(Int64,dims[1]/2)+1; K1 = dims[1]-L1+1
+       L2 = floor(Int64,dims[2]/2)+1; K2 = dims[2]-L2+1
+       L3 = floor(Int64,dims[3]/2)+1; K3 = dims[3]-L3+1
+       L4 = floor(Int64,dims[4]/2)+1; K4 = dims[4]-L4+1
+       L5 = floor(Int64,dims[5]/2)+1; K5 = dims[5]-L5+1
+
+       if flag == "forward"
+
+          # check the size of v
+          size(v, 1) == K1 || DimensionMismatch()
+          size(v, 2) == K2 || DimensionMismatch()
+          size(v, 3) == K3 || DimensionMismatch()
+          size(v, 4) == K4 || DimensionMismatch()
+          size(v, 5) == K5 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2], n3=dims[3], n4=dims[4], n5=dims[5])
+          v_hat = fft(v_hat)
+
+          # element-wise multiplication
+          r = ifft(d_hat .* v_hat)
+
+          # return the last L1 element
+          return r[K1:dims[1],K2:dims[2],K3:dims[3],K4:dims[4],K5:dims[5]]
+
+       elseif flag == "adjoint"
+
+          # check the size of v
+          size(v, 1) == L1 || DimensionMismatch()
+          size(v, 2) == L2 || DimensionMismatch()
+          size(v, 3) == L3 || DimensionMismatch()
+          size(v, 4) == L4 || DimensionMismatch()
+          size(v, 5) == L5 || DimensionMismatch()
+
+          # reverse v and padding zeros
+          v_hat = reverse_order(v; n1=dims[1], n2=dims[2], n3=dims[3], n4=dims[4], n5=dims[5])
+          v_hat = fft(v_hat)
+
+          # conjugate property
+          d_tilde = copy(d_hat)
+          for i5 = 1 : dims[5]
+              j5 = i5 == 1 ? 1 : dims[5]-i5+2
+
+              for i4 = 1 : dims[4]
+                  j4 = i4 == 1 ? 1 : dims[4]-i4+2
+
+                  for i3 = 1 : dims[3]
+                      j3 = i3 == 1 ? 1 : dims[3]-i3+2
+
+                      for i2 = 1 : dims[2]
+                          j2 = i2 == 1 ? 1 : dims[2]-i2+2
+
+                          for i1 = 1 : dims[1]
+                              j1 = i1 == 1 ? 1 : dims[1]-i1+2
+
+                              d_tilde[i1,i2,i3,i4,i5] = conj(d_hat[j1,j2,j3,j4,j5])
+                          end
+                      end
+                  end
+              end
+          end
+
+          # element-wise multiplication
+          r = ifft(d_tilde .* v_hat)
+
+          # return the last K1 element
+          return r[L1:dims[1],L2:dims[2],L3:dims[3],L4:dims[4],L5:dims[5]]
+
+    else
+       error("only supported up to five dimension")
+    end
+end
+
+# Hankel matrix or its Hermitian transpose times a vector
 function hankel_times_vector(c::Vector{Tv}, v::Vector{Tv}; flag="forward") where {Tv<:Number}
 
     # length of vector
@@ -565,21 +880,22 @@ end
 
 # # test the property of Fourier transform of complex conjugate of a vector
 using FFTW, Algebra
-N1 = 123
-N2 = 123
+N1 = 100
+N2 = 122
 a = rand(Complex{Float64}, N1, N2)
 A = fft(a)
 
 b = conj(a)
 B = fft(b)
 
-C = zeros(Complex{Float64}, N)
-C[1] = conj(A[1])
-for i2 = 2 : N2
-    for i1 = 2 : N1
-        C[i1,i2] = conj(A[N1-i1+2,N2-i2+2])
+C = zeros(Complex{Float64}, N1, N2)
+for i2 = 1 : N2
+    j2 = i2 == 1 ? 1 : N2-i2+2
+
+    for i1 = 1 : N1
+        j1 = i1 == 1 ? 1 : N1-i1+2
+        C[i1,i2] = conj(A[j1,j2])
     end
 end
-
 
 norm(C-B) / norm(C)
