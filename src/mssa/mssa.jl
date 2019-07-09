@@ -7,3 +7,4 @@ export hankelization,
 
 include("mssa3d.jl")
 include("fxy_eigen.jl")
+include("structured_matrix.jl")
