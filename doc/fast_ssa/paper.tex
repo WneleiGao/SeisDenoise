@@ -137,7 +137,7 @@ we set $t^{\prime} = t - t_0$ and exchange the variables, we can get
 $$
 {\mathbfcal F}[x(t-t_0)]  = \int_{-\infty}^{\infty} x(t^{\prime}) e^{-i\omega (t^{\prime} + t_0)} d t^{\prime}  $$
 $$
-{\mathbfcal F}[x(t-t_0)] = e^{i \omega t_0} \int_{-\infty}^{\infty} x(t^{\prime}) e^{-i\omega t^{\prime}} d t^{\prime} = X(\omega) e^{i \omega t_0}
+{\mathbfcal F}[x(t-t_0)] = e^{-i \omega t_0} \int_{-\infty}^{\infty} x(t^{\prime}) e^{-i\omega t^{\prime}} d t^{\prime} = X(\omega) e^{-i \omega t_0}
 $$
 
 \subsubsection{2. frequency modulation}
@@ -572,6 +572,98 @@ $$
 \mathbfcal{F}[x^*(t)] \rightarrow X^*(-\omega)
 $$
 
+\section{Complex derivative}
+Let $f(z, z^{\ast})$: $\mathbb{C} \times \mathbb{C} \rightarrow \mathbb{C}$ be a function of a complex variable $z$ and its complex conjugate $z^{\ast}$, where $z = x + iy$. We have the derivative 
+\begin{equation}
+\frac{\partial f}{\partial z} = \frac{1}{2}(\frac{\partial f}{\partial x} - i\frac{\partial f}{\partial x}),
+\end{equation}
+and
+\begin{equation}
+\frac{\partial f}{\partial z^{\ast}} = \frac{1}{2}(\frac{\partial f}{\partial x} + i\frac{\partial f}{\partial x}).
+\end{equation}
+Using the definition of complex derivative, it's clear that 
+\begin{equation}
+\begin{split}
+\frac{\partial f}{\partial z} &= \left( \frac{\partial f}{\partial z^{\ast}} \right)^{\ast} \\
+\frac{\partial z}{\partial z} &= 1 \\
+\frac{\partial z^{\ast}}{\partial z^{\ast}} &= 1 \\
+\frac{\partial z^{\ast}}{\partial z} &= 0
+\end{split}.
+\end{equation}
+With above property, we can simply consider the complex variable and its complex conjugate $z^{\ast}$ as two independent variable. 
+
+\subsection{Stationary point}
+Let $f(z, z^{\ast})$: $\mathbb{C} \times \mathbb{C} \rightarrow \mathbb{R}$ be a function mapping a complex variable $z$ and its complex conjugate $z^{\ast}$ to a real number. A sufficient and necessary condition for $f(z, z^{\ast})$ have a stationary point is $\frac{\partial f}{\partial z} = 0$. Similarly $\frac{\partial f}{\partial z^{\ast}} = 0$ is also a sufficient and necessary condition.
+
+\subsection{Complex gradient}
+Let's think about the first-order Taylor-series expansion, we have 
+\begin{equation}
+\delta f = \frac{\partial f}{\partial z} \delta z +  \frac{\partial f}{\partial z^{\ast}} \delta z^{\ast} 
+\end{equation}
+By using the property $\frac{\partial f}{\partial z} = \left( \frac{\partial f}{\partial z^{\ast}} \right)^{\ast}$, we can get 
+\begin{equation}
+\delta f = 2 Re (\frac{\partial f}{\partial z} \delta z),
+\end{equation}
+where the operator $Re$ means take the real part of the input.
+We can extend this property to a function of a complex vector $g$: $\mathbb{C}^N \rightarrow \mathbb{R}$. We denote the complex vector as $\bf z$, so its first-order Taylor expansion can be expressed as
+\begin{equation}
+\begin{split}
+\delta g &= 2 \sum_{i=1}^N Re \left(\frac{\partial g}{\partial z_i} \delta z_i \right) \\
+             &= 2 Re\left( \left( \frac{\partial g}{\partial {\bf z}} \right)^T {\bf \delta z} \right)
+\end{split}
+\end{equation}
+To make the above expression consistent with the axiom of inner product, we replace the above equation as 
+\begin{equation}
+\delta g = 2 Re \left( \left( \frac{\partial g}{\partial {\bf z^{\ast}}}\right)^H {\bf \delta z} \right)
+\end{equation}
+The maximum change $\delta g$ is obtained when $\delta {\bf z}$ is in the same direction of $\frac{\partial g}{\partial {\bf z^{\ast}}}$. It means that
+\begin{equation}
+\delta {\bf z} = \alpha \frac{\partial g}{\partial {\bf z^{\ast}}}.
+\end{equation}
+Where $\alpha$ is a real number indicate the magnitude of the vector $\delta {\bf z}$. This explanation suggest that the gradient vector $ \frac{\partial g}{\partial {\bf z^{\ast}}}$ is required for updating the variable ${\bf z}$ in an optimization problem.
+
+\subsection{discrete time linear time invariant system}
+We derive the mathematical model for describing discrete time linear invariant system. Suppose the input to a system is an impulse $\delta[n]$, which is equal to $1$ when $n=0$ and is $0$ elsewhere. The impulse response of this system is indicated by $h[n]$. The $\textbf{time invariant}$ property mean that the delayed impulse response is the output of the delayed impulse, which can be expressed as 
+\begin{equation}
+\delta[n-k] \rightarrow h[n-k],
+\end{equation}
+where $k$ indicate the number of samples delayed.
+
+Any discrete-time signal(sequence) can be expressed as the weighted summation of delayed impulse as 
+\begin{equation}
+x[n] = \sum_{k=-\infty}^{+\infty} x[k] \delta[n-k]
+\label{input}
+\end{equation}
+Combine with the linear property of this system, the output can be expressed as
+\begin{equation}
+y[n] = \sum_{k=-\infty}^{+\infty} x[k] h[n-k]
+\end{equation}
+Which give the definition of convolution which are used to describe the linear time-invariant system as $y[n] = x[n] \ast h[n]$.
+
+Suppose the input is given as $g[n] = x[n-p_1]$ and the impulse response of the system is $f[n] = h[n-p_2]$. What is the output of this system? There are two ways to derive the result, one is based on the definition we given in equation (\ref{input}).
+\begin{equation}
+\begin{split}
+g[n] &= \sum_{k=-\infty}^{+\infty} g[k] \delta[n-k] \\
+       &= \sum_{k=-\infty}^{+\infty} x[k-p_1] \delta[n-k]
+\end{split}
+\end{equation}
+The output of this system is
+\begin{equation}
+\begin{split}
+s[n] &= \sum_{k=-\infty}^{+\infty} x[k-p_1] f[n-k] \\
+       &= \sum_{k=-\infty}^{+\infty} x[k-p_1] h[n-k-p_2] \\
+\end{split}
+\label{sum}
+\end{equation}
+We can the variable change trick by setting $k^{\prime} = k-p_1$, so we have $k = k^{\prime} + p_1$. With this variable change, equation (\ref{sum}) can be reformulated as 
+\begin{equation}
+\begin{split}
+s[n]  &= \sum_{k^{\prime}=-\infty}^{+\infty} x[k^{\prime}] h[n-k^{\prime}-p_1- p_2]    \\
+        &= \sum_{k^{\prime}=-\infty}^{+\infty} x[k^{\prime}] h[(n-p_1- p_2)-k^{\prime}] \\
+        &= y[n-p_1-p_2]
+\end{split}
+\label{sum}
+\end{equation}
 
 
 \bibliographystyle{seg}
