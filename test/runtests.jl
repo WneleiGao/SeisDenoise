@@ -1,4 +1,4 @@
-using Test, FFTW, LinearAlgebra
+using SeisDenoise, Test, FFTW, LinearAlgebra
 
 include("circulant.jl")
 include("toeplitz.jl")

@@ -10,8 +10,11 @@ export hankelization,
        reverse_order,
        hankel_multiplication,
        count_copy_times,
-       anti_diagonal_summation
+       anti_diagonal_summation,
+       anti_diagonal_summation_slow,
+       lanbpro
 
 include("mssa3d.jl")
+include("lanczos.jl")
 include("fxy_eigen.jl")
 include("structured_matrix.jl")

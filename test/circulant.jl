@@ -4,8 +4,8 @@
 
       # 1D case
       N1 = 123            # length of vector
-      d  = randn(Tv, N1)  # random vector
-      v  = randn(Tv, N1)  # random vector
+      d  = randn(Tv, N1)  # randnom vector
+      v  = randn(Tv, N1)  # randnom vector
 
       C  = build_circulant_matrix(d)  # build circulant matrix
 

@@ -93,9 +93,9 @@ In discrete case and assume the frequency $f$ can be expressed as $f = k \Delta 
 \end{equation}
 The the last equation is exactly same as the equation \ref{eq1}. Through this derivation, we can understand the physical meaning of the Fourier coefficients obtained via discrete Fourier transform. Note that the first coefficient corresponding to $0$ frequency and so as to the time series. The first element of ${\bf s}$ is the sample at $0$ time. 
 
-The above operation can be expressed into the matrix-vector form. To simplify the definition of Fourier transform matrix, we define a variable $z = e^{-i \pi  / N}$, so the Fourier transform matrix, which is a $N$-by-$N$ square matrix and the element $F_{kl} = z^{kl}$. It can be expanded as
+The above operation can be expressed into the matrix-vector form. To simplify the definition of Fourier transform matrix, we define a variable $z = e^{-i 2\pi  / N}$, so the Fourier transform matrix, which is a $N$-by-$N$ square matrix and the element $F_{kl} = z^{kl}$. It can be expanded as
 \begin{equation}
-{\bf F}_N = \begin{bmatrix}
+{\bf F}_N = \frac{1}{\sqrt{N}}\begin{bmatrix}
 1 & 1 & \cdots & 1 \\
 1 & z & \cdots & z^{N-1} \\
 1 & z^2 & \cdots & z^{2(N-1)} \\
@@ -106,10 +106,10 @@ The above operation can be expressed into the matrix-vector form. To simplify th
 \end{equation}
 As ${\bf F}_N$ is a orthogonal (but not orthonormal) matrix, we can be easily get the its inverse matrix
 \begin{equation}
-{\bf F}_N^{-1} = \frac{1}{N} {\bf F}_N^H = \frac{1}{N} {\bf F}_N^{\ast} \,
+{\bf F}_N^{-1} = {\bf F}_N^H =  {\bf F}_N^{\ast} \,
 \label{eq6}
 \end{equation}
-where the super-script $^H$ represent complex conjugate transpose and $\ast$ indicate conjugate transpose. As the matrix ${\bf F}_N$ is a symmetrical matrix, that's why we can get equation \ref{eq6}.
+where the super-script $^H$ represent complex conjugate transpose and $\ast$ indicate complex conjugate to each element. As the matrix ${\bf F}_N$ is a symmetrical matrix, that's why we can get equation \ref{eq6}.
 
 \subsection{Properties of Fourier transform}
 
@@ -188,7 +188,7 @@ where the super-script $^*$ represent complex conjugate.
 $$\int_{-\infty}^{\infty}  x^*(t) e^{-i \omega t} dt = \int_{-\infty}^{\infty} \left( x(t) e^{i \omega t}\right)^* dt = \int_{-\infty}^{\infty} \left(x(t) e^{-i (-\omega) t}\right)^* dt = \left( \int_{-\infty}^{\infty} x(t) e^{-i (-\omega) t} dt\right)^* = X^*(-\omega)  $$
 
 
-\subsection{Circulant matrix}
+\subsection{   matrix}
 An $9 \times 9$ circulant matrix is defined as
 \begin{equation}
 {\bf C} = 
@@ -207,9 +207,150 @@ c_9 & c_8 & c_7 & c_6 & c_5 & c_4 &  c_3 & c_2 & c_1 \\
 A circulant matrix is fully specified by its first column ${\bf c} = \begin{bmatrix}
 c_1 & c_2 &  c_3 &  c_4 &  c_5 &  c_6 &  c_7 &  c_8 &  c_9  \end{bmatrix}^T$, we know that the product between circulant matrix and a vector ${\bf v}$ length of $N$ is equivalent to the circular convolution between vector ${\bf c}$ and ${\bf v}$, and the circular convolution can be computed efficiently via Fast Fourier transform (FFT). So we have
 \begin{equation}
-{\bf Cv} = {\bf F}_N^{-1} \left(  {\bf F}_N {\bf c} \circ {\bf F}_N {\bf v} \right)  =  {\bf F}_N^{-1} \left(  diag({\bf F}_N {\bf c}) \cdot {\bf F}_N {\bf v} \right) \,,
+{\bf Cv} = {\bf F}_N^{-1} \left(  \sqrt{N}{\bf F}_N {\bf c} \circ {\bf F}_N {\bf v} \right)  =  {\bf F}_N^{-1} \left( \sqrt{N} diag({\bf F}_N {\bf c}) \cdot {\bf F}_N {\bf v} \right) \,,
+\label{circ_times_vector}
 \end{equation}
 where the symbol $\circ$ and $diag$ represents Hardmard (element-wise) multiplication and building diagonal matrix from a vector.
+Here we use a $4$-point vector to explain the above property, we define a vector ${\bf c} = \begin{bmatrix} c_1 & c_2 &c_3 & c_4\end{bmatrix}^T$. The circulant matrix formed by this vector is given as
+\begin{equation}
+{\bf C} = 
+\begin{bmatrix}
+c_1 & c_4 & c_3 & c_2  \\ 
+c_2 & c_1 & c_4 & c_3  \\ 
+c_3 & c_2 & c_1 & c_4  \\ 
+c_4 & c_3 & c_2 & c_1 
+\end{bmatrix}
+\end{equation} 
+Follow above definitions, we give $z = e^{-i 2\pi / 4}$, so the corresponding Fourier transform matrix is given as
+\begin{equation}
+{\bf F}_4 = \frac{1}{2}\begin{bmatrix}
+1 & 1 & 1 & 1 \\
+1 & z & z^2 & z^3 \\
+1 & z^2 & z^4 & z^6 \\
+1 & z^3 & z^6 & z^9 \\
+\end{bmatrix}
+\end{equation}
+The inverse Fourier transform matrix is the complex conjugate transpose as
+\begin{equation}
+{\bf F}_4^H = \frac{1}{2}\begin{bmatrix}
+1 & 1 & 1 & 1 \\
+1 & z^{-1} & z^{-2}  & z^{-3}  \\
+1 & z^{-2}  & z^{-4}  & z^{-6}  \\
+1 & z^{-3}  & z^{-6}  & z^{-9}  \\
+\end{bmatrix}
+\end{equation}
+The multiplication between the circulant matrix and the first column of ${\bf F}_4^H$ is given as
+\begin{equation}
+{\bf C}{\bf f}_1 = \frac{1}{2}
+\begin{bmatrix}
+c_1 & c_4 & c_3 & c_2  \\ 
+c_2 & c_1 & c_4 & c_3  \\ 
+c_3 & c_2 & c_1 & c_4  \\ 
+c_4 & c_3 & c_2 & c_1 
+\end{bmatrix}
+\begin{bmatrix}
+1 \\
+1 \\
+1 \\
+1 
+\end{bmatrix}
+= \frac{c_1+c_2+c_3+c_4}{2}
+\begin{bmatrix}
+1 \\
+1 \\
+1 \\
+1 
+\end{bmatrix}
+\end{equation} 
+The coefficient in front of the vector is equation to the first component of the Fourier transform of vector ${\bf c}$ times $\sqrt{N}$, where $N$ is the total length of the vector.
+Let's continue the discussion and multiply the circulant matrix by the second column of ${\bf F}_4^H$. We get
+\begin{equation}
+{\bf C}{\bf f}_1 = \frac{1}{2}
+\begin{bmatrix}
+c_1 & c_4 & c_3 & c_2  \\ 
+c_2 & c_1 & c_4 & c_3  \\ 
+c_3 & c_2 & c_1 & c_4  \\ 
+c_4 & c_3 & c_2 & c_1 
+\end{bmatrix}
+\begin{bmatrix}
+1 \\
+z^{-1} \\
+z^{-2} \\
+z^{-3} 
+\end{bmatrix}
+= \frac{1}{2}
+\begin{bmatrix}
+c_1 + c_4 z^{-1} + c_3 z^{-2} + c_2 z^{-3}  \\
+c_2 + c_1 z^{-1} + c_4 z^{-2} + c_3 z^{-3}  \\
+c_3 + c_2 z^{-1} + c_1 z^{-2} + c_4 z^{-3}  \\
+c_4 + c_3 z^{-1} + c_2 z^{-2} + c_1 z^{-3}  \\
+\end{bmatrix}
+= \frac{1}{2}
+\begin{bmatrix}
+1\left(c_1 + c_4 z^{-1} + c_3 z^{-2} + c_2 z^{-3} \right)  \\
+z^{-1} \left(c_2 z    + c_1 + c_4 z^{-1} + c_3 z^{-2} \right)  \\
+z^{-2} \left(c_3 z^2+ c_2 z + c_1 + c_4 z^{-1} \right)  \\
+z^{-3} \left(c_4 z^3+ c_3 z^{-2} + c_2 z + c_1 \right) \\
+\end{bmatrix}
+\end{equation}
+The function $z^n$ is a periodic function with period of $N=4$, the vector on the right hand side is equal to
+\begin{equation}
+\frac{1}{2}
+\begin{bmatrix}
+1\left(c_1 + c_4 z^{-1} + c_3 z^{-2} + c_2 z^{-3} \right)  \\
+z^{-1} \left(c_2 z    + c_1 + c_4 z^{-1} + c_3 z^{-2} \right)  \\
+z^{-2} \left(c_3 z^2+ c_2 z + c_1 + c_4 z^{-1} \right)  \\
+z^{-3} \left(c_4 z^3+ c_3 z^{-2} + c_2 z + c_1 \right) \\
+\end{bmatrix}
+=
+\frac{1}{2}
+\begin{bmatrix}
+1         \left(c_1 + c_2 z + c_3 z^2 + c_4 z^3 \right)  \\
+z^{-1} \left(c_1 + c_2 z + c_3 z^2 + c_4 z^3 \right)  \\
+z^{-2} \left(c_1 + c_2 z + c_3 z^2 + c_4 z^3 \right)  \\
+z^{-3} \left(c_1 + c_2 z + c_3 z^2 + c_4 z^3 \right) \\
+\end{bmatrix} 
+= 
+\frac{1}{2}\left(c_1 + c_2 z + c_3 z^2 + c_4 z^3 \right) 
+\begin{bmatrix}
+1         \\
+z^{-1} \\
+z^{-2} \\
+z^{-3} \\
+\end{bmatrix} 
+\end{equation}
+The define the scalar in front of the right vector as $\lambda = \frac{1}{2}\left(c_1 + c_2 z + c_3 z^2 + c_4 z^3 \right) $, which is the second element of the Fourier transform of the vector $c$ times $\sqrt{N}$. Following the same derivation, we can get
+\begin{equation}
+{\bf C} {\bf f}_i = \lambda_i  {\bf f}_i
+\end{equation}
+If we organize all the vectors into a matrix, we can get
+\begin{equation}
+{\bf C}{\bf F}^H = {\bf F}^H diag(\sqrt{N}{\bf F}{\bf c})
+\end{equation}
+We can further right multiply both end of the equations with ${\bf F}$, we can get
+\begin{equation}
+{\bf C} = {\bf F}^H diag(\sqrt{N}{\bf F}{\bf c}) {\bf F}
+\label{decom}
+\end{equation}
+Which is equivalent to the expression in equation \ref{circ_times_vector}. In reality, we never formulate the Fourier transform matrix explicitly, instead the fast Fourier transform operator $fft$ and the inverse transform operator $ifft$ are used. we know
+\begin{equation}
+\begin{split}
+\sqrt{N} {\bf F}_n = fft \\
+ {\bf F}_N^H = \sqrt{N} ifft
+ \end{split}
+\end{equation}
+with the above expression, we can replace the equation \ref{circ_times_vector} with the two operator as
+\begin{equation}
+{\bf C} {\bf v} = \sqrt{N} ifft\left( diag(fft({\bf c}))  {\frac{1}{\sqrt{N}} fft({\bf v})} \right)
+\label{decom}
+\end{equation}
+With some simple manipulations, we can get the final form as
+\begin{equation}
+{\bf C} {\bf v} =  ifft \left( fft({\bf c}) \circ  fft({\bf v}) \right)
+\label{decom}
+\end{equation}
+
+
 
 \subsection{Toeplitz matrix}
 Toeplitz matrix is associated with linear convolution, suppose we have two vectors ${\bf s} = \begin{bmatrix}  s_1 & s_2 & s_3 & s_4 & s_5  \end{bmatrix}^T$ and ${\bf f} =  \begin{bmatrix}  f_1 & f_2 & f_3 & f_4 & f_5  \end{bmatrix}^T$,  the linear convolution of these two vectors is vector ${\bf r}$ length of $9$. We can represent the convolution into matrix-vector form as

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  23 JAN 2020 17:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  3 FEB 2020 17:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -692,6 +692,12 @@ LaTeX Font Info:    Overwriting math alphabet `\mathbfcal' in version `bold'
 
 (./paper.aux
 
+LaTeX Warning: Label `decom' multiply defined.
+
+
+LaTeX Warning: Label `decom' multiply defined.
+
+
 LaTeX Warning: Label `sum' multiply defined.
 
 )
@@ -808,19 +814,29 @@ umn $\OT1/cmr/bx/n/10.95 c \OT1/cmr/m/n/10.95 = [][]$,
  []
 
 [4]
-Overfull \hbox (32.23477pt too wide) in paragraph at lines 275--277
+Overfull \hbox (77.34384pt too wide) detected at line 295
+\OT1/cmr/bx/n/10.95 Cf[] \OT1/cmr/m/n/10.95 = [] [] [] = [] [] = [] []
+ []
+
+
+Overfull \hbox (81.07465pt too wide) detected at line 321
+[] [] \OT1/cmr/m/n/10.95 = [] [] = [] [] []
+ []
+
+[5]
+Overfull \hbox (32.23477pt too wide) in paragraph at lines 416--418
 []\OT1/cmr/m/n/10.95 Let's con-sider an-other Toeplitz ma-trix built from a vec
 -tor $\OT1/cmr/bx/n/10.95 c \OT1/cmr/m/n/10.95 = []$
  []
 
-
-Overfull \hbox (89.77634pt too wide) in paragraph at lines 315--316
+[6]
+Overfull \hbox (89.77634pt too wide) in paragraph at lines 456--457
 \OT1/cmr/m/n/10.95 The above cir-cu-lant ma-trix is called $\OT1/cmr/bx/n/10.95
  C[]$\OT1/cmr/m/n/10.95 . We can cre-ate a new vec-tor $[] = [][]$,
  []
 
-[5] [6] [7] [8] [9] [10] (./paper.bbl [11])
-AED endfloat: Processing end Figures and Tables [12] (./paper.aux)
+[7] [8] [9] [10] [11] [12] (./paper.bbl)
+AED endfloat: Processing end Figures and Tables [13] (./paper.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
@@ -830,10 +846,10 @@ LaTeX Warning: There were multiply-defined labels.
 ### simple group (level 1) entered at line 1061 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 17006 strings out of 493014
- 314468 string characters out of 6133351
- 439827 words of memory out of 5000000
- 20201 multiletter control sequences out of 15000+600000
+ 17008 strings out of 493014
+ 314494 string characters out of 6133351
+ 437963 words of memory out of 5000000
+ 20203 multiletter control sequences out of 15000+600000
  12716 words of font info for 51 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  55i,18n,70p,838b,3265s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -855,10 +871,10 @@ ocal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/lo
 cal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></us
 r/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
 
-Output written on paper.pdf (12 pages, 212290 bytes).
+Output written on paper.pdf (13 pages, 218312 bytes).
 PDF statistics:
- 114 PDF objects out of 1000 (max. 8388607)
- 82 compressed objects within 1 object stream
+ 118 PDF objects out of 1000 (max. 8388607)
+ 85 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

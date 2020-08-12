@@ -92,7 +92,7 @@ function get_mixture_events(; ot =0.0, dt =0.004, nt =500,
        drop     = floor(Int64, L/2)*2
 
        for ie = 1 : nevents
-           tmp = conv2(smoother, smoother, randn(nx1+drop, nx2+drop))[drop+1:end-drop, drop+1:end-drop] * sigma
+           tmp = conv(smoother, smoother, randn(nx1+drop, nx2+drop))[drop+1:end-drop, drop+1:end-drop] * sigma
            pt[ie,:,:] .= tmp[:,:]
        end
     end
